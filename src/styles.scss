@@ -1,0 +1,42 @@
+:root {
+  --surface-base: #fffaf4;
+  --surface-strong: rgba(255, 250, 244, 0.82);
+  --text-strong: #1f2937;
+  --text-muted: #5b6576;
+  --accent: #e38b5b;
+  --accent-strong: #b65a31;
+  --border-soft: rgba(31, 41, 55, 0.08);
+  --border-strong: rgba(31, 41, 55, 0.14);
+  --shadow-soft: 0 20px 60px rgba(137, 102, 76, 0.12);
+  --font-body: 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-display: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--font-body);
+  background:
+    radial-gradient(circle at top left, rgba(227, 139, 91, 0.22), transparent 32%),
+    radial-gradient(circle at right 20%, rgba(31, 41, 55, 0.06), transparent 24%),
+    linear-gradient(180deg, #f7efe6 0%, #fcf7f1 48%, #fffdfa 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a,
+button {
+  font: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}

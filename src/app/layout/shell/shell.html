@@ -1,0 +1,31 @@
+<div class="shell">
+  <header class="shell__header">
+    <a class="shell__brand" routerLink="/">
+      <span class="shell__brand-mark">AR</span>
+      <span>
+        <strong>AlgoRation UI</strong>
+        <small>Angular 20 starter workspace</small>
+      </span>
+    </a>
+
+    <nav class="shell__nav" aria-label="Primary">
+      @for (item of navigation; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+  </header>
+
+  <main class="shell__content">
+    <router-outlet />
+  </main>
+
+  <footer class="shell__footer">
+    Feature-first structure, standalone components, SCSS, and strict TypeScript.
+  </footer>
+</div>

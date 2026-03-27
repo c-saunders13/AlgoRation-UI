@@ -1,0 +1,43 @@
+<section class="hero">
+  <div class="hero__copy">
+    <p class="hero__eyebrow">Initial workspace</p>
+    <h1>Angular 20 foundation with a structure that scales.</h1>
+    <p class="hero__lead">
+      This starter keeps the root thin, routes lazily, and gives you clear places for feature code,
+      cross-cutting services, and reusable UI.
+    </p>
+
+    <div class="hero__actions">
+      <a class="hero__button hero__button--primary" routerLink="/architecture">Review architecture</a>
+      <a class="hero__button" href="https://angular.dev/style-guide" target="_blank" rel="noreferrer">
+        Angular style guide
+      </a>
+    </div>
+  </div>
+
+  <aside class="hero__panel">
+    <p>Starter principles</p>
+    <ul>
+      @for (principle of principles; track principle) {
+        <li>{{ principle }}</li>
+      }
+    </ul>
+  </aside>
+</section>
+
+<section class="grid">
+  <article class="card">
+    <h2>Core</h2>
+    <p>Singleton concerns such as API clients, interceptors, auth state, and app-wide providers.</p>
+  </article>
+
+  <article class="card">
+    <h2>Features</h2>
+    <p>Route-level slices that own their pages, local components, state, and data contracts.</p>
+  </article>
+
+  <article class="card">
+    <h2>Shared</h2>
+    <p>Reusable UI primitives, pipes, directives, and utilities with no feature ownership.</p>
+  </article>
+</section>

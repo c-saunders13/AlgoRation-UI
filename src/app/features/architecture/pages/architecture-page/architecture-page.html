@@ -1,0 +1,29 @@
+<section class="architecture-page">
+  <header class="architecture-page__intro">
+    <p class="architecture-page__eyebrow">Suggested app map</p>
+    <h1>Keep domain code close to its route, and keep shared code honest.</h1>
+    <p>
+      The workspace starts with a thin root, a shell component, and lazy-loaded pages. As the app grows,
+      feature folders should absorb most business logic while core and shared stay intentionally small.
+    </p>
+  </header>
+
+  <div class="architecture-page__grid">
+    @for (section of sections; track section.name) {
+      <article class="architecture-page__card">
+        <h2>{{ section.name }}</h2>
+        <p>{{ section.purpose }}</p>
+      </article>
+    }
+  </div>
+
+  <section class="architecture-page__notes">
+    <h2>Conventions</h2>
+    <ul>
+      <li>Use standalone components by default.</li>
+      <li>Prefer lazy route boundaries for feature entry points.</li>
+      <li>Keep services in features unless they are truly application-wide.</li>
+      <li>Promote only stable, reusable pieces into shared.</li>
+    </ul>
+  </section>
+</section>

@@ -1,0 +1,64 @@
+:host {
+  display: block;
+}
+
+.architecture-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.architecture-page__intro,
+.architecture-page__card,
+.architecture-page__notes {
+  padding: 1.75rem;
+  border-radius: 1.75rem;
+  background: var(--surface-base);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.architecture-page__eyebrow {
+  margin: 0 0 1rem;
+  color: var(--accent-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.85rem;
+}
+
+.architecture-page__intro h1,
+.architecture-page__notes h2 {
+  margin-top: 0;
+}
+
+.architecture-page__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.architecture-page__card h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  text-transform: lowercase;
+}
+
+.architecture-page__card p,
+.architecture-page__intro p,
+.architecture-page__notes li {
+  color: var(--text-muted);
+}
+
+.architecture-page__notes ul {
+  margin-bottom: 0;
+  padding-left: 1.2rem;
+}
+
+.architecture-page__notes li + li {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 920px) {
+  .architecture-page__grid {
+    grid-template-columns: 1fr;
+  }
+}
