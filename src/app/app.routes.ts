@@ -10,18 +10,10 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        title: 'AlgoRation UI',
+        title: 'AlgoRation',
         loadComponent: () =>
           import('./features/home/pages/home-page/home-page').then(
             (module) => module.HomePageComponent,
-          ),
-      },
-      {
-        path: 'architecture',
-        title: 'Architecture | AlgoRation UI',
-        loadComponent: () =>
-          import('./features/architecture/pages/architecture-page/architecture-page').then(
-            (module) => module.ArchitecturePageComponent,
           ),
       },
     ],
