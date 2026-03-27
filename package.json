@@ -3,13 +3,16 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "prestart": "npm run test:ci",
     "start": "ng serve",
+    "prebuild": "npm run test:ci",
     "build": "ng build",
     "pwa:build": "ng build --configuration production",
     "pwa:serve": "http-server dist/algoration-ui/browser -p 4200 -c-1",
     "pwa": "npm run pwa:build && npm run pwa:serve",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless"
   },
   "prettier": {
     "printWidth": 100,
