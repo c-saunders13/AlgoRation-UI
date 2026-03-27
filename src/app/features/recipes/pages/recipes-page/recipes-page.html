@@ -1,0 +1,128 @@
+<section class="page">
+  <header class="page__header">
+    <div>
+      <p class="page__eyebrow">Recipe Library</p>
+      <h1>Recipes</h1>
+      <p class="page__lead">Manage recipes and define ingredients</p>
+    </div>
+
+    <button class="primary-button" type="button" (click)="openCreateModal()">New recipe</button>
+  </header>
+
+  @if (alert(); as pageAlert) {
+    <app-alert
+      [variant]="pageAlert.variant"
+      [title]="pageAlert.title"
+      [message]="pageAlert.message"
+      [dismissible]="true"`
+      (dismissed)="dismissAlert()"
+    />
+  }
+
+  <section class="panel">
+    <h2>Current recipes</h2>
+
+    @if (loading()) {
+      <p class="muted">Loading recipes...</p>
+    } @else if (recipes().length === 0) {
+      <p class="muted">No recipes yet.</p>
+    } @else {
+      <div class="recipe-list">
+        @for (recipe of recipes(); track trackRecipe($index, recipe)) {
+          <article>
+            <header>
+              <h3>{{ recipe.name }}</h3>
+              <div class="row-actions">
+                <button type="button" class="ghost-button" (click)="openEditModal(recipe)">Edit</button>
+                <button type="button" class="danger-button" (click)="requestDelete(recipe)">Delete</button>
+              </div>
+            </header>
+
+            <strong>Servings: {{ recipe.servings }}</strong> 
+            <ul>
+              @for (requirement of recipe.ingredients; track $index) {
+                <li>
+                  {{ ingredientLabel(requirement.ingredientId) }} - {{ requirement.requiredQuantity }}
+                </li>
+              }
+            </ul>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</section>
+
+<app-modal
+  [open]="formModalOpen()"
+  [title]="editingId() ? 'Edit recipe' : 'Add recipe'"
+  (closed)="closeFormModal()"
+>
+  <form modal-body [formGroup]="form" (ngSubmit)="submit()" class="recipe-form">
+    <label>
+      Name
+      <input type="text" formControlName="name" placeholder="e.g. Tomato Pasta" />
+    </label>
+
+    <label>
+      Servings per recipe
+      <input type="number" formControlName="servings" min="1" />
+    </label>
+
+    <div class="requirements" formArrayName="requirements">
+      <header>
+        <h3>Required ingredients</h3>
+        <button class="ghost-button" type="button" (click)="addRequirement()">Add row</button>
+      </header>
+
+      @for (requirement of requirements.controls; track requirement; let index = $index) {
+        <div class="requirement-row" [formGroupName]="index">
+          <label>
+            Ingredient
+            <select formControlName="ingredientId">
+              <option value="">Select ingredient</option>
+              @for (ingredient of ingredients(); track ingredient.id) {
+                <option [value]="ingredient.id">{{ ingredient.name }}</option>
+              }
+            </select>
+          </label>
+
+          <label>
+            Required quantity
+            <input type="number" formControlName="requiredQuantity" min="1" />
+          </label>
+
+          <button class="danger-button" type="button" (click)="removeRequirement(index)">
+            Remove
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="actions" modal-footer>
+      <button class="primary-button" type="submit" [disabled]="saving()">
+        {{ editingId() ? 'Update recipe' : 'Create recipe' }}
+      </button>
+      <button class="ghost-button" type="button" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </form>
+</app-modal>
+
+<app-modal
+  [open]="pendingDelete() !== null"
+  title="Confirm delete"
+  (closed)="cancelDelete()"
+>
+  <div modal-body>
+    <app-alert
+      variant="warning"
+      title="Delete recipe"
+      [message]="deleteMessage()"
+    />
+  </div>
+
+  <div class="actions" modal-footer>
+    <button type="button" class="danger-button" (click)="confirmDelete()">Delete</button>
+    <button type="button" class="ghost-button" (click)="cancelDelete()">Cancel</button>
+  </div>
+</app-modal>

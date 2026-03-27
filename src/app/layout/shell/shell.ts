@@ -14,5 +14,13 @@ export class ShellComponent {
       label: 'Home',
       path: '/',
     },
+    {
+      label: 'Ingredients',
+      path: '/ingredients',
+    },
+    {
+      label: 'Recipes',
+      path: '/recipes',
+    },
   ];
 }
