@@ -16,6 +16,22 @@ export const routes: Routes = [
             (module) => module.HomePageComponent,
           ),
       },
+      {
+        path: 'ingredients',
+        title: 'Ingredients | AlgoRation',
+        loadComponent: () =>
+          import('./features/ingredients/pages/ingredients-page/ingredients-page').then(
+            (module) => module.IngredientsPageComponent,
+          ),
+      },
+      {
+        path: 'recipes',
+        title: 'Recipes | AlgoRation',
+        loadComponent: () =>
+          import('./features/recipes/pages/recipes-page/recipes-page').then(
+            (module) => module.RecipesPageComponent,
+          ),
+      },
     ],
   },
   {

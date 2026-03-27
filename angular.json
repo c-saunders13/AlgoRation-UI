@@ -82,7 +82,8 @@
               "buildTarget": "algoration-ui:build:production"
             },
             "development": {
-              "buildTarget": "algoration-ui:build:development"
+              "buildTarget": "algoration-ui:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
