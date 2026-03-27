@@ -33,6 +33,10 @@
   text-decoration: none;
 }
 
+.shell__brand-highlight {
+  font-family: var(--font-display);
+}
+
 .shell__brand strong,
 .shell__brand small {
   display: block;
@@ -58,6 +62,8 @@
   color: var(--surface-base);
   font-weight: 700;
   letter-spacing: 0.06em;
+  justify-content: center;
+  grid-auto-flow: column;
 }
 
 .shell__nav {
@@ -78,7 +84,7 @@
 .shell__nav a:hover,
 .shell__nav a:focus-visible,
 .shell__nav a.is-active {
-  background: rgba(248, 198, 149, 0.16);
+  background: rgba(95, 168, 112, 0.16);
   color: var(--text-strong);
   transform: translateY(-1px);
 }
