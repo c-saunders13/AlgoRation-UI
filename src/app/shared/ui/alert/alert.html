@@ -1,0 +1,18 @@
+<article class="alert" [ngClass]="'alert--' + variant()" role="alert">
+  <div class="alert__content">
+    @if (title()) {
+      <h3>{{ title() }}</h3>
+    }
+    <p>{{ message() }}</p>
+  </div>
+
+  <div class="alert__actions">
+    <ng-content select="[alert-actions]" />
+  </div>
+
+  @if (dismissible()) {
+    <button class="alert__dismiss" type="button" (click)="dismiss()" aria-label="Dismiss">
+      ×
+    </button>
+  }
+</article>
