@@ -8,7 +8,7 @@ import {
   CreateIngredientRequest,
   UpdateIngredientRequest,
 } from '../../../../core/models/ingredient.model';
-import { IngredientService } from '../../../../core/services/ingredient.service';
+import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { AlertComponent, AlertVariant } from '../../../../shared/ui/alert/alert';
 import { ModalComponent } from '../../../../shared/ui/modal/modal';
 
@@ -26,11 +26,11 @@ interface PageAlert {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IngredientsPageComponent {
-  private readonly ingredientService = inject(IngredientService);
+  private readonly ingredientStore = inject(IngredientStore);
   private readonly fb = inject(FormBuilder);
 
-  protected readonly ingredients = signal<Ingredient[]>([]);
-  protected readonly loading = signal(false);
+  protected readonly ingredients = this.ingredientStore.ingredients;
+  protected readonly loading = this.ingredientStore.loading;
   protected readonly saving = signal(false);
   protected readonly formModalOpen = signal(false);
   protected readonly pendingDelete = signal<Ingredient | null>(null);
@@ -43,19 +43,9 @@ export class IngredientsPageComponent {
   });
 
   constructor() {
-    this.loadIngredients();
-  }
-
-  protected loadIngredients(): void {
-    this.loading.set(true);
-
-    this.ingredientService
-      .list()
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (ingredients) => this.ingredients.set(ingredients),
-        error: (error: unknown) => this.showError('Unable to load ingredients', error),
-      });
+    this.ingredientStore.load().subscribe({
+      error: (error: unknown) => this.showError('Unable to load ingredients', error),
+    });
   }
 
   protected openCreateModal(): void {
@@ -90,10 +80,9 @@ export class IngredientsPageComponent {
     }
 
     this.pendingDelete.set(null);
-    this.ingredientService.delete(ingredient.id).subscribe({
+    this.ingredientStore.delete(ingredient.id).subscribe({
       next: () => {
         this.startCreate();
-        this.loadIngredients();
         this.alert.set({
           variant: 'success',
           title: 'Ingredient deleted',
@@ -140,14 +129,13 @@ export class IngredientsPageComponent {
 
     const editingId = this.editingId();
     const request$ = editingId
-      ? this.ingredientService.update(editingId, payload)
-      : this.ingredientService.create(payload);
+      ? this.ingredientStore.update(editingId, payload)
+      : this.ingredientStore.create(payload);
 
     request$.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: () => {
         this.formModalOpen.set(false);
         this.startCreate();
-        this.loadIngredients();
         this.alert.set({
           variant: 'success',
           title: editingId ? 'Ingredient updated' : 'Ingredient created',

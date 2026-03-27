@@ -16,8 +16,8 @@ import {
   CreateRecipeRequest,
   UpdateRecipeRequest,
 } from '../../../../core/models/recipe.model';
-import { IngredientService } from '../../../../core/services/ingredient.service';
-import { RecipeService } from '../../../../core/services/recipe.service';
+import { IngredientStore } from '../../../../core/stores/ingredient.store';
+import { RecipeStore } from '../../../../core/stores/recipe.store';
 import { AlertComponent, AlertVariant } from '../../../../shared/ui/alert/alert';
 import { ModalComponent } from '../../../../shared/ui/modal/modal';
 
@@ -28,6 +28,7 @@ interface PageAlert {
 }
 
 type RequirementFormGroup = FormGroup<{
+  clientKey: FormControl<number>;
   ingredientId: FormControl<string>;
   requiredQuantity: FormControl<number>;
 }>;
@@ -40,13 +41,14 @@ type RequirementFormGroup = FormGroup<{
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipesPageComponent {
-  private readonly recipeService = inject(RecipeService);
-  private readonly ingredientService = inject(IngredientService);
+  private readonly recipeStore = inject(RecipeStore);
+  private readonly ingredientStore = inject(IngredientStore);
   private readonly fb = inject(FormBuilder);
+  private requirementKeyCounter = 0;
 
-  protected readonly recipes = signal<Recipe[]>([]);
-  protected readonly ingredients = signal<Ingredient[]>([]);
-  protected readonly loading = signal(false);
+  protected readonly recipes = this.recipeStore.recipes;
+  protected readonly ingredients = this.ingredientStore.ingredients;
+  protected readonly loading = this.recipeStore.loading;
   protected readonly saving = signal(false);
   protected readonly formModalOpen = signal(false);
   protected readonly pendingDelete = signal<Recipe | null>(null);
@@ -60,31 +62,16 @@ export class RecipesPageComponent {
   });
 
   constructor() {
-    this.loadIngredients();
-    this.loadRecipes();
+    this.recipeStore.load().subscribe({
+      error: (error: unknown) => this.showError('Unable to load recipes', error),
+    });
+    this.ingredientStore.load().subscribe({
+      error: (error: unknown) => this.showError('Unable to load ingredients', error),
+    });
   }
 
   protected get requirements(): FormArray<RequirementFormGroup> {
     return this.form.controls.requirements;
-  }
-
-  protected loadRecipes(): void {
-    this.loading.set(true);
-
-    this.recipeService
-      .list()
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (recipes) => this.recipes.set(recipes),
-        error: (error: unknown) => this.showError('Unable to load recipes', error),
-      });
-  }
-
-  protected loadIngredients(): void {
-    this.ingredientService.list().subscribe({
-      next: (ingredients) => this.ingredients.set(ingredients),
-      error: (error: unknown) => this.showError('Unable to load ingredients', error),
-    });
   }
 
   protected openCreateModal(): void {
@@ -119,10 +106,9 @@ export class RecipesPageComponent {
     }
 
     this.pendingDelete.set(null);
-    this.recipeService.delete(recipe.id).subscribe({
+    this.recipeStore.delete(recipe.id).subscribe({
       next: () => {
         this.startCreate();
-        this.loadRecipes();
         this.alert.set({
           variant: 'success',
           title: 'Recipe deleted',
@@ -147,6 +133,10 @@ export class RecipesPageComponent {
     }
 
     this.requirements.removeAt(index);
+  }
+
+  protected trackRequirement(_: number, requirement: RequirementFormGroup): number {
+    return requirement.controls.clientKey.value;
   }
 
   private startCreate(): void {
@@ -195,14 +185,13 @@ export class RecipesPageComponent {
 
     const editingId = this.editingId();
     const request$ = editingId
-      ? this.recipeService.update(editingId, payload as UpdateRecipeRequest)
-      : this.recipeService.create(payload as CreateRecipeRequest);
+      ? this.recipeStore.update(editingId, payload as UpdateRecipeRequest)
+      : this.recipeStore.create(payload as CreateRecipeRequest);
 
     request$.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: () => {
         this.formModalOpen.set(false);
         this.startCreate();
-        this.loadRecipes();
         this.alert.set({
           variant: 'success',
           title: editingId ? 'Recipe updated' : 'Recipe created',
@@ -237,9 +226,15 @@ export class RecipesPageComponent {
     requiredQuantity: number;
   }): RequirementFormGroup {
     return this.fb.nonNullable.group({
+      clientKey: [this.nextRequirementKey()],
       ingredientId: [value?.ingredientId ?? '', [Validators.required]],
       requiredQuantity: [value?.requiredQuantity ?? 1, [Validators.required, Validators.min(1)]],
     });
+  }
+
+  private nextRequirementKey(): number {
+    this.requirementKeyCounter += 1;
+    return this.requirementKeyCounter;
   }
 
   private resetRequirements(

@@ -14,7 +14,7 @@
       [variant]="pageAlert.variant"
       [title]="pageAlert.title"
       [message]="pageAlert.message"
-      [dismissible]="true"`
+      [dismissible]="true"
       (dismissed)="dismissAlert()"
     />
   }
@@ -75,7 +75,7 @@
         <button class="ghost-button" type="button" (click)="addRequirement()">Add row</button>
       </header>
 
-      @for (requirement of requirements.controls; track requirement; let index = $index) {
+      @for (requirement of requirements.controls; track trackRequirement($index, requirement); let index = $index) {
         <div class="requirement-row" [formGroupName]="index">
           <label>
             Ingredient

@@ -3,11 +3,9 @@ import { RouterLink } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
 
 import { RationsResult } from '../../../../core/models/calculation.model';
-import { Ingredient } from '../../../../core/models/ingredient.model';
-import { Recipe } from '../../../../core/models/recipe.model';
 import { CalculationService } from '../../../../core/services/calculation.service';
-import { IngredientService } from '../../../../core/services/ingredient.service';
-import { RecipeService } from '../../../../core/services/recipe.service';
+import { IngredientStore } from '../../../../core/stores/ingredient.store';
+import { RecipeStore } from '../../../../core/stores/recipe.store';
 
 @Component({
   selector: 'app-home-page',
@@ -17,12 +15,12 @@ import { RecipeService } from '../../../../core/services/recipe.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePageComponent {
-  private readonly ingredientService = inject(IngredientService);
-  private readonly recipeService = inject(RecipeService);
+  private readonly ingredientStore = inject(IngredientStore);
+  private readonly recipeStore = inject(RecipeStore);
   private readonly calculationService = inject(CalculationService);
 
-  protected readonly ingredients = signal<Ingredient[]>([]);
-  protected readonly recipes = signal<Recipe[]>([]);
+  protected readonly ingredients = this.ingredientStore.ingredients;
+  protected readonly recipes = this.recipeStore.recipes;
   protected readonly calculationResult = signal<RationsResult | null>(null);
   protected readonly loadingData = signal(false);
   protected readonly calculating = signal(false);
@@ -37,15 +35,12 @@ export class HomePageComponent {
     this.errorMessage.set(null);
 
     forkJoin({
-      ingredients: this.ingredientService.list(),
-      recipes: this.recipeService.list(),
+      ingredients: this.ingredientStore.load(true),
+      recipes: this.recipeStore.load(true),
     })
       .pipe(finalize(() => this.loadingData.set(false)))
       .subscribe({
-        next: ({ ingredients, recipes }) => {
-          this.ingredients.set(ingredients);
-          this.recipes.set(recipes);
-        },
+        next: () => {},
         error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),
       });
   }
