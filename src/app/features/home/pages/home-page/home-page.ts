@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { finalize, forkJoin, switchMap } from 'rxjs';
+
+import { RationsResult } from '../../../../core/models/calculation.model';
+import { CalculationService } from '../../../../core/services/calculation.service';
+import { RecipeService } from '../../../../core/services/recipe.service';
+import { IngredientStore } from '../../../../core/stores/ingredient.store';
+import { RecipeStore } from '../../../../core/stores/recipe.store';
 
 @Component({
   selector: 'app-home-page',
@@ -9,10 +16,88 @@ import { RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePageComponent {
-  protected readonly principles = [
-    'Standalone components and route-driven composition.',
-    'Feature folders for pages and domain-specific UI.',
-    'Shared and core layers separated by responsibility.',
-    'Strict typing with generator defaults for OnPush components.',
-  ];
+  private readonly ingredientStore = inject(IngredientStore);
+  private readonly recipeStore = inject(RecipeStore);
+  private readonly calculationService = inject(CalculationService);
+  private readonly recipeService = inject(RecipeService);
+
+  protected readonly ingredients = this.ingredientStore.ingredients;
+  protected readonly recipes = this.recipeStore.recipes;
+  protected readonly calculationResult = signal<RationsResult | null>(null);
+  protected readonly loadingData = signal(false);
+  protected readonly calculating = signal(false);
+  protected readonly errorMessage = signal<string | null>(null);
+
+  constructor() {
+    this.refreshData();
+  }
+
+  protected refreshData(): void {
+    this.loadingData.set(true);
+    this.errorMessage.set(null);
+
+    forkJoin({
+      ingredients: this.ingredientStore.load(true),
+      recipes: this.recipeStore.load(true),
+    })
+      .pipe(finalize(() => this.loadingData.set(false)))
+      .subscribe({
+        next: () => {},
+        error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),
+      });
+  }
+
+  protected restoreData(): void {
+    this.loadingData.set(true);
+    this.errorMessage.set(null);
+
+    this.recipeService
+      .reset()
+      .pipe(
+        switchMap(() =>
+          forkJoin({
+            ingredients: this.ingredientStore.load(true),
+            recipes: this.recipeStore.load(true),
+          }),
+        ),
+        finalize(() => this.loadingData.set(false)),
+      )
+      .subscribe({
+        next: () => {},
+        error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),
+      });
+  }
+
+  protected calculateRations(): void {
+    if (this.calculating()) {
+      return;
+    }
+
+    this.calculating.set(true);
+    this.errorMessage.set(null);
+
+    this.calculationService
+      .calculate()
+      .pipe(finalize(() => this.calculating.set(false)))
+      .subscribe({
+        next: (result) => this.calculationResult.set(result),
+        error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),
+      });
+  }
+
+  private getErrorMessage(error: unknown): string {
+    if (typeof error === 'object' && error !== null) {
+      const maybeMessage = (error as { error?: { message?: string }; message?: string }).error
+        ?.message;
+      if (maybeMessage) {
+        return maybeMessage;
+      }
+
+      if ('message' in error && typeof (error as { message?: string }).message === 'string') {
+        return (error as { message: string }).message;
+      }
+    }
+
+    return 'Something went wrong. Please try again.';
+  }
 }

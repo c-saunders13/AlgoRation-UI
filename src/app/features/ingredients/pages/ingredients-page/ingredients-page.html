@@ -1,0 +1,103 @@
+<section class="page">
+  <header class="page__header">
+    <div>
+      <p class="page__eyebrow">Inventory</p>
+      <h1>Ingredients</h1>
+      <p class="page__lead">Create, update, and remove ingredients</p>
+    </div>
+
+    <button class="primary-button" type="button" (click)="openCreateModal()">New ingredient</button>
+  </header>
+
+  @if (alert(); as pageAlert) {
+    <app-alert
+      [variant]="pageAlert.variant"
+      [title]="pageAlert.title"
+      [message]="pageAlert.message"
+      [dismissible]="true"
+      (dismissed)="dismissAlert()"
+    />
+  }
+
+  <section class="panel">
+    <h2>Current ingredients</h2>
+
+    @if (loading()) {
+      <p class="muted">Loading ingredients...</p>
+    } @else if (ingredients().length === 0) {
+      <p class="muted">No ingredients yet.</p>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Available quantity</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ingredient of ingredients(); track trackIngredient($index, ingredient)) {
+              <tr>
+                <td>{{ ingredient.name }}</td>
+                <td>{{ ingredient.availableQuantity }}</td>
+                <td class="row-actions">
+                  <button type="button" class="ghost-button" (click)="openEditModal(ingredient)">
+                    Edit
+                  </button>
+                  <button type="button" class="danger-button" (click)="requestDelete(ingredient)">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>
+
+<app-modal
+  [open]="formModalOpen()"
+  [title]="editingId() ? 'Edit ingredient' : 'Add ingredient'"
+  (closed)="closeFormModal()"
+>
+  <form modal-body [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+    <label>
+      Name
+      <input type="text" formControlName="name" placeholder="e.g. Tomato" />
+    </label>
+
+    <label>
+      Available quantity
+      <input type="number" formControlName="availableQuantity" min="0" />
+    </label>
+
+    <div class="actions" modal-footer>
+      <button class="primary-button" type="submit" [disabled]="saving()">
+        {{ editingId() ? 'Update ingredient' : 'Create ingredient' }}
+      </button>
+      <button class="ghost-button" type="button" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </form>
+</app-modal>
+
+<app-modal
+  [open]="pendingDelete() !== null"
+  title="Confirm delete"
+  (closed)="cancelDelete()"
+>
+  <div modal-body>
+    <app-alert
+      variant="warning"
+      title="Delete ingredient"
+      [message]="deleteMessage()"
+    />
+  </div>
+
+  <div class="actions" modal-footer>
+    <button type="button" class="danger-button" (click)="confirmDelete()">Delete</button>
+    <button type="button" class="ghost-button" (click)="cancelDelete()">Cancel</button>
+  </div>
+</app-modal>

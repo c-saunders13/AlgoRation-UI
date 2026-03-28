@@ -11,12 +11,16 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 export class ShellComponent {
   protected readonly navigation = [
     {
-      label: 'Overview',
+      label: 'Home',
       path: '/',
     },
     {
-      label: 'Architecture',
-      path: '/architecture',
+      label: 'Ingredients',
+      path: '/ingredients',
+    },
+    {
+      label: 'Recipes',
+      path: '/recipes',
     },
   ];
 }
