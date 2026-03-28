@@ -27,6 +27,10 @@ export class RecipeService {
     return this.http.delete<void>(`${this.endpoint}/${id}`);
   }
 
+  reset(): Observable<void> {
+    return this.http.post<void>(`${this.endpoint}/reset`, {});
+  }
+
   private buildUrl(path: string): string {
     return `${this.config.baseUrl}${path}`;
   }

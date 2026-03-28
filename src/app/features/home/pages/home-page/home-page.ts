@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin, switchMap } from 'rxjs';
 
 import { RationsResult } from '../../../../core/models/calculation.model';
 import { CalculationService } from '../../../../core/services/calculation.service';
+import { RecipeService } from '../../../../core/services/recipe.service';
 import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { RecipeStore } from '../../../../core/stores/recipe.store';
 
@@ -18,6 +19,7 @@ export class HomePageComponent {
   private readonly ingredientStore = inject(IngredientStore);
   private readonly recipeStore = inject(RecipeStore);
   private readonly calculationService = inject(CalculationService);
+  private readonly recipeService = inject(RecipeService);
 
   protected readonly ingredients = this.ingredientStore.ingredients;
   protected readonly recipes = this.recipeStore.recipes;
@@ -39,6 +41,27 @@ export class HomePageComponent {
       recipes: this.recipeStore.load(true),
     })
       .pipe(finalize(() => this.loadingData.set(false)))
+      .subscribe({
+        next: () => {},
+        error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),
+      });
+  }
+
+  protected restoreData(): void {
+    this.loadingData.set(true);
+    this.errorMessage.set(null);
+
+    this.recipeService
+      .reset()
+      .pipe(
+        switchMap(() =>
+          forkJoin({
+            ingredients: this.ingredientStore.load(true),
+            recipes: this.recipeStore.load(true),
+          }),
+        ),
+        finalize(() => this.loadingData.set(false)),
+      )
       .subscribe({
         next: () => {},
         error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),

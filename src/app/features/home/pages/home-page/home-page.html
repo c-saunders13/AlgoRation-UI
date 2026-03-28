@@ -10,6 +10,9 @@
       <button class="hero__button" type="button" (click)="refreshData()" [disabled]="loadingData()">
         {{ loadingData() ? 'Refreshing...' : 'Refresh data' }}
       </button>
+      <button class="hero__button" type="button" (click)="restoreData()" [disabled]="loadingData()">
+        {{ loadingData() ? 'Restoring...' : 'Restore data' }}
+      </button>
       <a class="hero__button" routerLink="/ingredients">Manage ingredients</a>
       <a class="hero__button" routerLink="/recipes">Manage recipes</a>
     </div>
