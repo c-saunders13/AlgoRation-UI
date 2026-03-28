@@ -24,6 +24,7 @@ Dough x10
 ### Burger
 
 Servings: 1
+
 Meat x1
 Lettuce x1
 Tomato x1
@@ -33,18 +34,21 @@ Dough x1
 ### Pie
 
 Servings: 1
+
 Dough x2
 Meat x2
 
 ### Sandwich
 
 Servings: 1
+
 Dough x1
 Cucumber x1
 
 ### Pasta
 
 Servings: 2
+
 Dough x2
 Tomato x1
 Cheese x2
@@ -53,6 +57,7 @@ Meat x1
 ### Salad
 
 Servings: 3
+
 Lettuce x2
 Tomato x2
 Cucumber x1
@@ -62,6 +67,7 @@ Olives x1
 ### Pizza
 
 Servings: 4
+
 Dough x3
 Tomato x2
 Cheese x3
