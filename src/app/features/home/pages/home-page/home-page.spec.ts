@@ -52,12 +52,25 @@ describe('HomePageComponent', () => {
     }).compileComponents();
   });
 
-  it('should create and load data on init', () => {
+  it('should create and load data on init using cache-aware store load', () => {
     const fixture = TestBed.createComponent(HomePageComponent);
 
     fixture.detectChanges();
 
     expect(fixture.componentInstance).toBeTruthy();
+    expect(ingredientStoreMock.load).toHaveBeenCalledWith(false);
+    expect(recipeStoreMock.load).toHaveBeenCalledWith(false);
+  });
+
+  it('should force refresh when refreshData is requested', () => {
+    const fixture = TestBed.createComponent(HomePageComponent);
+    fixture.detectChanges();
+
+    ingredientStoreMock.load.calls.reset();
+    recipeStoreMock.load.calls.reset();
+
+    (fixture.componentInstance as any).refreshData();
+
     expect(ingredientStoreMock.load).toHaveBeenCalledWith(true);
     expect(recipeStoreMock.load).toHaveBeenCalledWith(true);
   });

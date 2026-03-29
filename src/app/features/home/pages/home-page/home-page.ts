@@ -35,16 +35,20 @@ export class HomePageComponent {
   protected readonly errorMessage = signal<string | null>(null);
 
   constructor() {
-    this.refreshData();
+    this.loadData();
   }
 
   protected refreshData(): void {
+    this.loadData(true);
+  }
+
+  private loadData(forceRefresh = false): void {
     this.loadingData.set(true);
     this.errorMessage.set(null);
 
     forkJoin({
-      ingredients: this.ingredientStore.load(true),
-      recipes: this.recipeStore.load(true),
+      ingredients: this.ingredientStore.load(forceRefresh),
+      recipes: this.recipeStore.load(forceRefresh),
     })
       .pipe(finalize(() => this.loadingData.set(false)))
       .subscribe({
