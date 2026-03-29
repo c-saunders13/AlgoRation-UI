@@ -88,6 +88,17 @@
           }
         </ul>
       }
+
+      <h3>Leftover ingredients</h3>
+      @if (leftoverIngredients().length === 0) {
+        <p>No ingredients left over.</p>
+      } @else {
+        <ul>
+          @for (ingredient of leftoverIngredients(); track ingredient.id) {
+            <li>{{ ingredient.name }} - {{ ingredient.availableQuantity }}</li>
+          }
+        </ul>
+      }
     }
   </article>
 </section>

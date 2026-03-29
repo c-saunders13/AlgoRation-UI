@@ -25,6 +25,7 @@ describe('HomePageComponent', () => {
       of({
         totalPeopleFed: 3,
         breakdown: [{ recipeName: 'Rice Bowl', servingsMade: 3 }],
+        leftoverIngredients: [{ id: 'ing-1', name: 'Rice', availableQuantity: 2 }],
       }),
     ),
   };

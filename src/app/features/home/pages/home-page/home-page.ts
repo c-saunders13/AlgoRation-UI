@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { finalize, forkJoin, switchMap } from 'rxjs';
 
@@ -24,6 +24,11 @@ export class HomePageComponent {
   protected readonly ingredients = this.ingredientStore.ingredients;
   protected readonly recipes = this.recipeStore.recipes;
   protected readonly calculationResult = signal<RationsResult | null>(null);
+  protected readonly leftoverIngredients = computed(() =>
+    (this.calculationResult()?.leftoverIngredients ?? []).filter(
+      (ingredient) => ingredient.availableQuantity >= 1,
+    ),
+  );
   protected readonly loadingData = signal(false);
   protected readonly calculating = signal(false);
   protected readonly errorMessage = signal<string | null>(null);

@@ -1,3 +1,5 @@
+import { Ingredient } from './ingredient.model';
+
 export interface RecipeRationBreakdown {
   recipeId?: string;
   recipeName: string;
@@ -8,4 +10,5 @@ export interface RecipeRationBreakdown {
 export interface RationsResult {
   totalPeopleFed: number;
   breakdown: RecipeRationBreakdown[];
+  leftoverIngredients: Ingredient[];
 }
