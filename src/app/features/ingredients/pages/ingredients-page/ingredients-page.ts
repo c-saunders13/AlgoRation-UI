@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 
 import {
@@ -12,6 +12,10 @@ import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { AlertComponent, AlertVariant } from '../../../../shared/ui/alert/alert';
 import { ModalComponent } from '../../../../shared/ui/modal/modal';
 import { getDisplayErrorMessage } from '../../../../shared/utils/error-message';
+import {
+  nonWhitespaceValidator,
+  uniqueNameValidator,
+} from '../../../../shared/utils/form-validators';
 
 interface PageAlert {
   variant: AlertVariant;
@@ -39,7 +43,14 @@ export class IngredientsPageComponent {
   protected readonly editingId = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.maxLength(80)]],
+    name: [
+      '',
+      [
+        Validators.required,
+        nonWhitespaceValidator(),
+        uniqueNameValidator(this.ingredients, this.editingId),
+      ],
+    ],
     availableQuantity: [0, [Validators.required, Validators.min(0)]],
   });
 
@@ -98,12 +109,55 @@ export class IngredientsPageComponent {
     this.alert.set(null);
   }
 
+  protected showControlError(control: AbstractControl | null): boolean {
+    return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  protected nameErrorMessage(): string | null {
+    const control = this.form.controls.name;
+    if (!this.showControlError(control)) {
+      return null;
+    }
+
+    if (control.hasError('required')) {
+      return 'Name is required.';
+    }
+
+    if (control.hasError('whitespace')) {
+      return 'Name must contain at least one non-whitespace character.';
+    }
+
+    if (control.hasError('duplicateName')) {
+      return 'Ingredient name must be unique.';
+    }
+
+    return null;
+  }
+
+  protected availableQuantityErrorMessage(): string | null {
+    const control = this.form.controls.availableQuantity;
+    if (!this.showControlError(control)) {
+      return null;
+    }
+
+    if (control.hasError('required')) {
+      return 'Available quantity is required.';
+    }
+
+    if (control.hasError('min')) {
+      return 'AvailableQuantity must be >= 0.';
+    }
+
+    return null;
+  }
+
   private startCreate(): void {
     this.editingId.set(null);
     this.form.reset({
       name: '',
       availableQuantity: 0,
     });
+    this.form.controls.name.updateValueAndValidity();
   }
 
   private startEdit(ingredient: Ingredient): void {
@@ -112,6 +166,7 @@ export class IngredientsPageComponent {
       name: ingredient.name,
       availableQuantity: ingredient.availableQuantity,
     });
+    this.form.controls.name.updateValueAndValidity();
   }
 
   protected submit(): void {

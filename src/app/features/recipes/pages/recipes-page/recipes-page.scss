@@ -68,6 +68,17 @@ select {
   background: #fff;
 }
 
+.input-invalid {
+  border-color: #b94a48;
+  background: rgba(185, 74, 72, 0.06);
+}
+
+.field-error {
+  margin: 0;
+  color: #8c2727;
+  font-size: 0.85rem;
+}
+
 .requirements {
   display: grid;
   gap: 0.8rem;

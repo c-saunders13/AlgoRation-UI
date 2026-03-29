@@ -61,12 +61,28 @@
   <form modal-body [formGroup]="form" (ngSubmit)="submit()" class="recipe-form">
     <label>
       Name
-      <input type="text" formControlName="name" placeholder="e.g. Tomato Pasta" />
+      <input
+        type="text"
+        formControlName="name"
+        placeholder="e.g. Tomato Pasta"
+        [class.input-invalid]="showControlError(form.controls.name)"
+      />
+      @if (nameErrorMessage(); as message) {
+        <span class="field-error">{{ message }}</span>
+      }
     </label>
 
     <label>
       Servings per recipe
-      <input type="number" formControlName="servings" min="1" />
+      <input
+        type="number"
+        formControlName="servings"
+        min="1"
+        [class.input-invalid]="showControlError(form.controls.servings)"
+      />
+      @if (servingsErrorMessage(); as message) {
+        <span class="field-error">{{ message }}</span>
+      }
     </label>
 
     <div class="requirements" formArrayName="requirements">
@@ -75,21 +91,39 @@
         <button class="ghost-button" type="button" (click)="addRequirement()">Add row</button>
       </header>
 
+      @if (requirementsErrorMessage(); as message) {
+        <p class="field-error">{{ message }}</p>
+      }
+
       @for (requirement of requirements.controls; track trackRequirement($index, requirement); let index = $index) {
         <div class="requirement-row" [formGroupName]="index">
           <label>
             Ingredient
-            <select formControlName="ingredientId">
+            <select
+              formControlName="ingredientId"
+              [class.input-invalid]="showControlError(requirement.controls.ingredientId)"
+            >
               <option value="">Select ingredient</option>
               @for (ingredient of ingredients(); track ingredient.id) {
                 <option [value]="ingredient.id">{{ ingredient.name }}</option>
               }
             </select>
+            @if (requirementIngredientErrorMessage(index); as message) {
+              <span class="field-error">{{ message }}</span>
+            }
           </label>
 
           <label>
             Required quantity
-            <input type="number" formControlName="requiredQuantity" min="1" />
+            <input
+              type="number"
+              formControlName="requiredQuantity"
+              min="1"
+              [class.input-invalid]="showControlError(requirement.controls.requiredQuantity)"
+            />
+            @if (requirementQuantityErrorMessage(index); as message) {
+              <span class="field-error">{{ message }}</span>
+            }
           </label>
 
           <button class="danger-button" type="button" (click)="removeRequirement(index)">

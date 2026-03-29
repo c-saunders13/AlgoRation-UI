@@ -7,6 +7,17 @@ function resolveApiErrorMessage(error: HttpErrorResponse): string {
   const payload = error.error;
 
   if (typeof payload === 'object' && payload !== null) {
+    // ASP.NET Core ValidationProblemDetails: { errors: { Field: ['msg', ...], ... } }
+    const errors = (payload as { errors?: unknown }).errors;
+    if (typeof errors === 'object' && errors !== null) {
+      const firstMessages = Object.values(errors as Record<string, unknown[]>)
+        .flat()
+        .filter((m): m is string => typeof m === 'string' && m.trim().length > 0);
+      if (firstMessages.length > 0) {
+        return firstMessages.join(' ');
+      }
+    }
+
     const message = (payload as { message?: unknown }).message;
     if (typeof message === 'string' && message.trim().length > 0) {
       return message;

@@ -7,7 +7,7 @@ import { IngredientsPageComponent } from './ingredients-page';
 
 describe('IngredientsPageComponent', () => {
   const ingredientStoreMock = {
-    ingredients: signal([]),
+    ingredients: signal([{ id: 'ing-1', name: 'Salt', availableQuantity: 2 }]),
     loading: signal(false),
     load: jasmine.createSpy('load').and.returnValue(of([])),
     create: jasmine
@@ -20,6 +20,7 @@ describe('IngredientsPageComponent', () => {
   };
 
   beforeEach(async () => {
+    ingredientStoreMock.ingredients.set([{ id: 'ing-1', name: 'Salt', availableQuantity: 2 }]);
     ingredientStoreMock.load.calls.reset();
     ingredientStoreMock.create.calls.reset();
     ingredientStoreMock.update.calls.reset();
@@ -45,7 +46,7 @@ describe('IngredientsPageComponent', () => {
     fixture.detectChanges();
 
     const component = fixture.componentInstance as any;
-    component.form.setValue({ name: 'Tomato', availableQuantity: 10 });
+    component.form.setValue({ name: '  Tomato  ', availableQuantity: 10 });
 
     component.submit();
 
@@ -53,6 +54,32 @@ describe('IngredientsPageComponent', () => {
       name: 'Tomato',
       availableQuantity: 10,
     });
+  });
+
+  it('should reject whitespace-only ingredient names', () => {
+    const fixture = TestBed.createComponent(IngredientsPageComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as any;
+    component.form.setValue({ name: '   ', availableQuantity: 10 });
+
+    component.submit();
+
+    expect(component.form.controls.name.hasError('whitespace')).toBeTrue();
+    expect(ingredientStoreMock.create).not.toHaveBeenCalled();
+  });
+
+  it('should reject duplicate ingredient names', () => {
+    const fixture = TestBed.createComponent(IngredientsPageComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as any;
+    component.form.setValue({ name: ' salt ', availableQuantity: 10 });
+
+    component.submit();
+
+    expect(component.form.controls.name.hasError('duplicateName')).toBeTrue();
+    expect(ingredientStoreMock.create).not.toHaveBeenCalled();
   });
 
   it('should delete selected ingredient on confirmDelete', () => {

@@ -72,6 +72,16 @@ select {
   background: #fff;
 }
 
+.input-invalid {
+  border-color: #b94a48;
+  background: rgba(185, 74, 72, 0.06);
+}
+
+.field-error {
+  color: #8c2727;
+  font-size: 0.85rem;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

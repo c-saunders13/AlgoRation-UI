@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
@@ -21,6 +22,11 @@ import { RecipeStore } from '../../../../core/stores/recipe.store';
 import { AlertComponent, AlertVariant } from '../../../../shared/ui/alert/alert';
 import { ModalComponent } from '../../../../shared/ui/modal/modal';
 import { getDisplayErrorMessage } from '../../../../shared/utils/error-message';
+import {
+  minFormArrayItems,
+  nonWhitespaceValidator,
+  uniqueNameValidator,
+} from '../../../../shared/utils/form-validators';
 
 interface PageAlert {
   variant: AlertVariant;
@@ -57,9 +63,13 @@ export class RecipesPageComponent {
   protected readonly editingId = signal<string | null>(null);
 
   protected readonly form = this.fb.group({
-    name: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(80)]),
+    name: this.fb.nonNullable.control('', [
+      Validators.required,
+      nonWhitespaceValidator(),
+      uniqueNameValidator(this.recipes, this.editingId),
+    ]),
     servings: this.fb.nonNullable.control(1, [Validators.required, Validators.min(1)]),
-    requirements: this.fb.array<RequirementFormGroup>([this.createRequirementGroup()]),
+    requirements: this.createRequirementsArray([{ ingredientId: '', requiredQuantity: 1 }]),
   });
 
   constructor() {
@@ -126,6 +136,7 @@ export class RecipesPageComponent {
 
   protected addRequirement(): void {
     this.requirements.push(this.createRequirementGroup());
+    this.requirements.updateValueAndValidity();
   }
 
   protected removeRequirement(index: number): void {
@@ -134,10 +145,95 @@ export class RecipesPageComponent {
     }
 
     this.requirements.removeAt(index);
+    this.requirements.updateValueAndValidity();
   }
 
   protected trackRequirement(_: number, requirement: RequirementFormGroup): number {
     return requirement.controls.clientKey.value;
+  }
+
+  protected showControlError(control: AbstractControl | null): boolean {
+    return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  protected nameErrorMessage(): string | null {
+    const control = this.form.controls.name;
+    if (!this.showControlError(control)) {
+      return null;
+    }
+
+    if (control.hasError('required')) {
+      return 'Name is required.';
+    }
+
+    if (control.hasError('whitespace')) {
+      return 'Name must contain at least one non-whitespace character.';
+    }
+
+    if (control.hasError('duplicateName')) {
+      return 'Recipe name must be unique.';
+    }
+
+    return null;
+  }
+
+  protected servingsErrorMessage(): string | null {
+    const control = this.form.controls.servings;
+    if (!this.showControlError(control)) {
+      return null;
+    }
+
+    if (control.hasError('required')) {
+      return 'Servings is required.';
+    }
+
+    if (control.hasError('min')) {
+      return 'Servings must be > 0.';
+    }
+
+    return null;
+  }
+
+  protected requirementsErrorMessage(): string | null {
+    if (!this.showControlError(this.requirements)) {
+      return null;
+    }
+
+    if (this.requirements.hasError('minFormArrayItems')) {
+      return 'Ingredients must contain at least one item.';
+    }
+
+    return null;
+  }
+
+  protected requirementIngredientErrorMessage(index: number): string | null {
+    const control = this.requirements.at(index)?.controls.ingredientId;
+    if (!this.showControlError(control)) {
+      return null;
+    }
+
+    if (control.hasError('required')) {
+      return 'Ingredient is required.';
+    }
+
+    return null;
+  }
+
+  protected requirementQuantityErrorMessage(index: number): string | null {
+    const control = this.requirements.at(index)?.controls.requiredQuantity;
+    if (!this.showControlError(control)) {
+      return null;
+    }
+
+    if (control.hasError('required')) {
+      return 'Required quantity is required.';
+    }
+
+    if (control.hasError('min')) {
+      return 'RequiredQuantity must be > 0.';
+    }
+
+    return null;
   }
 
   private startCreate(): void {
@@ -147,6 +243,7 @@ export class RecipesPageComponent {
       servings: 1,
     });
     this.resetRequirements([{ ingredientId: '', requiredQuantity: 1 }]);
+    this.form.controls.name.updateValueAndValidity();
   }
 
   private startEdit(recipe: Recipe): void {
@@ -159,6 +256,7 @@ export class RecipesPageComponent {
         requiredQuantity: item.requiredQuantity,
       })),
     );
+    this.form.controls.name.updateValueAndValidity();
   }
 
   protected cancelEdit(): void {
@@ -171,19 +269,10 @@ export class RecipesPageComponent {
       return;
     }
 
-    const payload = this.buildPayload();
-    if (payload.ingredients.length === 0) {
-      this.alert.set({
-        variant: 'warning',
-        title: 'Recipe needs ingredients',
-        message: 'Each recipe needs at least one ingredient requirement.',
-      });
-      return;
-    }
-
     this.saving.set(true);
     this.alert.set(null);
 
+    const payload = this.buildPayload();
     const editingId = this.editingId();
     const request$ = editingId
       ? this.recipeStore.update(editingId, payload as UpdateRecipeRequest)
@@ -233,6 +322,19 @@ export class RecipesPageComponent {
     });
   }
 
+  private createRequirementsArray(
+    values: Array<{ ingredientId: string; requiredQuantity: number }>,
+  ): FormArray<RequirementFormGroup> {
+    const groups =
+      values.length > 0
+        ? values.map((value) => this.createRequirementGroup(value))
+        : [this.createRequirementGroup()];
+
+    return this.fb.array<RequirementFormGroup>(groups, {
+      validators: [minFormArrayItems(1)],
+    });
+  }
+
   private nextRequirementKey(): number {
     this.requirementKeyCounter += 1;
     return this.requirementKeyCounter;
@@ -241,21 +343,14 @@ export class RecipesPageComponent {
   private resetRequirements(
     values: Array<{ ingredientId: string; requiredQuantity: number }>,
   ): void {
-    const groups =
-      values.length > 0
-        ? values.map((value) => this.createRequirementGroup(value))
-        : [this.createRequirementGroup()];
-
-    this.form.setControl('requirements', this.fb.array<RequirementFormGroup>(groups));
+    this.form.setControl('requirements', this.createRequirementsArray(values));
   }
 
   private buildPayload(): CreateRecipeRequest | UpdateRecipeRequest {
-    const ingredients = this.requirements.controls
-      .map((control) => ({
-        ingredientId: control.controls.ingredientId.value,
-        requiredQuantity: control.controls.requiredQuantity.value,
-      }))
-      .filter((item) => item.ingredientId.trim().length > 0);
+    const ingredients = this.requirements.controls.map((control) => ({
+      ingredientId: control.controls.ingredientId.value,
+      requiredQuantity: control.controls.requiredQuantity.value,
+    }));
 
     return {
       name: this.form.controls.name.value.trim(),

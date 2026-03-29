@@ -66,12 +66,28 @@
   <form modal-body [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
     <label>
       Name
-      <input type="text" formControlName="name" placeholder="e.g. Tomato" />
+      <input
+        type="text"
+        formControlName="name"
+        placeholder="e.g. Tomato"
+        [class.input-invalid]="showControlError(form.controls.name)"
+      />
+      @if (nameErrorMessage(); as message) {
+        <span class="field-error">{{ message }}</span>
+      }
     </label>
 
     <label>
       Available quantity
-      <input type="number" formControlName="availableQuantity" min="0" />
+      <input
+        type="number"
+        formControlName="availableQuantity"
+        min="0"
+        [class.input-invalid]="showControlError(form.controls.availableQuantity)"
+      />
+      @if (availableQuantityErrorMessage(); as message) {
+        <span class="field-error">{{ message }}</span>
+      }
     </label>
 
     <div class="actions" modal-footer>
