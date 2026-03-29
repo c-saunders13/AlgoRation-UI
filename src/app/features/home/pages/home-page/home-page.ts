@@ -7,6 +7,7 @@ import { CalculationService } from '../../../../core/services/calculation.servic
 import { RecipeService } from '../../../../core/services/recipe.service';
 import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { RecipeStore } from '../../../../core/stores/recipe.store';
+import { getDisplayErrorMessage } from '../../../../shared/utils/error-message';
 
 @Component({
   selector: 'app-home-page',
@@ -48,7 +49,7 @@ export class HomePageComponent {
       .pipe(finalize(() => this.loadingData.set(false)))
       .subscribe({
         next: () => {},
-        error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),
+        error: (error: unknown) => this.errorMessage.set(getDisplayErrorMessage(error)),
       });
   }
 
@@ -69,7 +70,7 @@ export class HomePageComponent {
       )
       .subscribe({
         next: () => {},
-        error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),
+        error: (error: unknown) => this.errorMessage.set(getDisplayErrorMessage(error)),
       });
   }
 
@@ -86,23 +87,7 @@ export class HomePageComponent {
       .pipe(finalize(() => this.calculating.set(false)))
       .subscribe({
         next: (result) => this.calculationResult.set(result),
-        error: (error: unknown) => this.errorMessage.set(this.getErrorMessage(error)),
+        error: (error: unknown) => this.errorMessage.set(getDisplayErrorMessage(error)),
       });
-  }
-
-  private getErrorMessage(error: unknown): string {
-    if (typeof error === 'object' && error !== null) {
-      const maybeMessage = (error as { error?: { message?: string }; message?: string }).error
-        ?.message;
-      if (maybeMessage) {
-        return maybeMessage;
-      }
-
-      if ('message' in error && typeof (error as { message?: string }).message === 'string') {
-        return (error as { message: string }).message;
-      }
-    }
-
-    return 'Something went wrong. Please try again.';
   }
 }

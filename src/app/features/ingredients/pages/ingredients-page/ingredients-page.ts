@@ -11,6 +11,7 @@ import {
 import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { AlertComponent, AlertVariant } from '../../../../shared/ui/alert/alert';
 import { ModalComponent } from '../../../../shared/ui/modal/modal';
+import { getDisplayErrorMessage } from '../../../../shared/utils/error-message';
 
 interface PageAlert {
   variant: AlertVariant;
@@ -169,23 +170,7 @@ export class IngredientsPageComponent {
     this.alert.set({
       variant: 'error',
       title,
-      message: this.getErrorMessage(error),
+      message: getDisplayErrorMessage(error),
     });
-  }
-
-  private getErrorMessage(error: unknown): string {
-    if (typeof error === 'object' && error !== null) {
-      const maybeMessage = (error as { error?: { message?: string }; message?: string }).error
-        ?.message;
-      if (maybeMessage) {
-        return maybeMessage;
-      }
-
-      if ('message' in error && typeof (error as { message?: string }).message === 'string') {
-        return (error as { message: string }).message;
-      }
-    }
-
-    return 'Something went wrong. Please try again.';
   }
 }

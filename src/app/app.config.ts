@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
@@ -9,13 +9,14 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
+import { apiErrorInterceptor } from './core/interceptors/api-error.interceptor';
 import { API_CONFIG, DEFAULT_API_CONFIG } from './core/services/api-config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([apiErrorInterceptor])),
     provideRouter(routes),
     {
       provide: API_CONFIG,
