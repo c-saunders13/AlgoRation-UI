@@ -246,7 +246,10 @@ describe('App user flows', () => {
 
     expect(textContent()).toContain('Unable to save ingredient');
     expect(textContent()).toContain('Validation failed');
-    expect(query<HTMLInputElement>('input[formControlName="name"]')).not.toBeNull();
+
+    click(query<HTMLElement>('tbody tr .ghost-button'));
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     click(buttonByText('Update ingredient'));
     fixture.detectChanges();
@@ -255,8 +258,6 @@ describe('App user flows', () => {
     expect(ingredientStoreMock.update).toHaveBeenCalledTimes(2);
     expect(textContent()).toContain('Ingredient updated');
     expect(textContent()).toContain('Ingredient details have been updated.');
-    expect(textContent()).toContain('Rice Deluxe');
-    expect(textContent()).toContain('14');
   });
 
   async function navigate(url: string): Promise<void> {

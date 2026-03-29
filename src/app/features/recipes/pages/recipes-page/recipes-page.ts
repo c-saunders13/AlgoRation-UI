@@ -288,7 +288,10 @@ export class RecipesPageComponent {
           message: editingId ? 'Recipe details have been updated.' : 'New recipe has been added.',
         });
       },
-      error: (error: unknown) => this.showError('Unable to save recipe', error),
+      error: (error: unknown) => {
+        this.formModalOpen.set(false);
+        this.showError('Unable to save recipe', error);
+      },
     });
   }
 

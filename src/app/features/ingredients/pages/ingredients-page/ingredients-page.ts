@@ -200,7 +200,10 @@ export class IngredientsPageComponent {
             : 'New ingredient has been added.',
         });
       },
-      error: (error: unknown) => this.showError('Unable to save ingredient', error),
+      error: (error: unknown) => {
+        this.formModalOpen.set(false);
+        this.showError('Unable to save ingredient', error);
+      },
     });
   }
 
