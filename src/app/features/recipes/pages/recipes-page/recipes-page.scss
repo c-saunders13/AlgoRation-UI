@@ -63,9 +63,15 @@ input,
 select {
   width: 100%;
   padding: 0.65rem 0.75rem;
+  margin-bottom: 1.5rem;
   border: 1px solid var(--border-strong);
   border-radius: 0.75rem;
   background: #fff;
+}
+
+input:has(+ .field-error),
+select:has(+ .field-error) {
+  margin-bottom: 0;
 }
 
 .input-invalid {
