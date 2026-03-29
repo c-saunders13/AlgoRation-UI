@@ -60,6 +60,7 @@ export class HomePageComponent {
   protected restoreData(): void {
     this.loadingData.set(true);
     this.errorMessage.set(null);
+    this.calculationResult.set(null);
 
     this.recipeService
       .reset()
