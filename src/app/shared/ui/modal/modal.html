@@ -1,5 +1,11 @@
 @if (open()) {
-  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div
+    class="modal-backdrop"
+    tabindex="0"
+    (click)="onBackdropClick($event)"
+    (keydown.enter)="onBackdropClick($event)"
+    (keydown.space)="onBackdropClick($event)"
+  >
     <section class="modal" role="dialog" aria-modal="true" [attr.aria-label]="title() || 'Dialog'">
       <header class="modal__header">
         <h2>{{ title() }}</h2>

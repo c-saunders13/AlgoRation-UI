@@ -4,7 +4,7 @@ import { catchError, throwError } from 'rxjs';
 const DEFAULT_API_ERROR_MESSAGE = 'Something went wrong. Please try again.';
 
 function resolveApiErrorMessage(error: HttpErrorResponse): string {
-  const payload = error.error;
+  const payload: unknown = error.error;
 
   if (typeof payload === 'object' && payload !== null) {
     // ASP.NET Core ValidationProblemDetails: { errors: { Field: ['msg', ...], ... } }

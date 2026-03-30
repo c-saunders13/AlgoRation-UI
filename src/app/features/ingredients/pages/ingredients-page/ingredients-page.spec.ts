@@ -5,6 +5,18 @@ import { of } from 'rxjs';
 import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { IngredientsPageComponent } from './ingredients-page';
 
+interface IngredientsPageTestApi {
+  form: {
+    setValue(value: { name: string; availableQuantity: number }): void;
+    controls: {
+      name: { hasError(errorCode: string): boolean };
+    };
+  };
+  submit(): void;
+  requestDelete(ingredient: { id: string; name: string; availableQuantity: number }): void;
+  confirmDelete(): void;
+}
+
 describe('IngredientsPageComponent', () => {
   const ingredientStoreMock = {
     ingredients: signal([{ id: 'ing-1', name: 'Salt', availableQuantity: 2 }]),
@@ -45,7 +57,7 @@ describe('IngredientsPageComponent', () => {
     const fixture = TestBed.createComponent(IngredientsPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as IngredientsPageTestApi;
     component.form.setValue({ name: '  Tomato  ', availableQuantity: 10 });
 
     component.submit();
@@ -60,7 +72,7 @@ describe('IngredientsPageComponent', () => {
     const fixture = TestBed.createComponent(IngredientsPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as IngredientsPageTestApi;
     component.form.setValue({ name: '   ', availableQuantity: 10 });
 
     component.submit();
@@ -73,7 +85,7 @@ describe('IngredientsPageComponent', () => {
     const fixture = TestBed.createComponent(IngredientsPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as IngredientsPageTestApi;
     component.form.setValue({ name: ' salt ', availableQuantity: 10 });
 
     component.submit();
@@ -86,7 +98,7 @@ describe('IngredientsPageComponent', () => {
     const fixture = TestBed.createComponent(IngredientsPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as IngredientsPageTestApi;
     component.requestDelete({ id: 'ing-1', name: 'Salt', availableQuantity: 2 });
 
     component.confirmDelete();

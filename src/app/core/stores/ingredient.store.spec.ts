@@ -42,7 +42,7 @@ describe('IngredientStore', () => {
     });
 
     expect(store.loading()).toBeTrue();
-    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(service.list.calls.count()).toBe(1);
 
     initialLoad$.next(initialIngredients);
     initialLoad$.complete();
@@ -55,14 +55,14 @@ describe('IngredientStore', () => {
       cachedLoadResult = ingredients;
     });
 
-    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(service.list.calls.count()).toBe(1);
     expect(cachedLoadResult).toEqual(initialIngredients);
 
     store.load(true).subscribe((ingredients) => {
       forcedLoadResult = ingredients;
     });
 
-    expect(service.list).toHaveBeenCalledTimes(2);
+    expect(service.list.calls.count()).toBe(2);
     expect(forcedLoadResult).toEqual(refreshedIngredients);
     expect(store.ingredients()).toEqual(refreshedIngredients);
   });
@@ -91,7 +91,7 @@ describe('IngredientStore', () => {
       retryResult = ingredients;
     });
 
-    expect(service.list).toHaveBeenCalledTimes(2);
+    expect(service.list.calls.count()).toBe(2);
     expect(retryResult).toEqual(initialIngredients);
     expect(store.ingredients()).toEqual(initialIngredients);
   });
@@ -100,7 +100,7 @@ describe('IngredientStore', () => {
     const create$ = new Subject<(typeof initialIngredients)[number]>();
     const createdIngredient = { id: 'ing-3', name: 'Tomato', availableQuantity: 4 };
     let createdResult: (typeof initialIngredients)[number] | undefined;
-    let cachedResult: Array<(typeof initialIngredients)[number]> | undefined;
+    let cachedResult: ((typeof initialIngredients)[number])[] | undefined;
 
     service.list.and.returnValue(of(initialIngredients));
     service.create.and.returnValue(create$.asObservable());
@@ -123,7 +123,7 @@ describe('IngredientStore', () => {
       cachedResult = ingredients;
     });
 
-    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(service.list.calls.count()).toBe(1);
     expect(cachedResult).toEqual([...initialIngredients, createdIngredient]);
   });
 

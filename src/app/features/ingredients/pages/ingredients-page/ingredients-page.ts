@@ -48,7 +48,7 @@ export class IngredientsPageComponent {
       [
         Validators.required,
         nonWhitespaceValidator(),
-        uniqueNameValidator(this.ingredients, this.editingId),
+        uniqueNameValidator(() => this.ingredients(), () => this.editingId()),
       ],
     ],
     availableQuantity: [0, [Validators.required, Validators.min(0)]],

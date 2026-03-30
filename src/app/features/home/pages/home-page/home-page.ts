@@ -52,7 +52,6 @@ export class HomePageComponent {
     })
       .pipe(finalize(() => this.loadingData.set(false)))
       .subscribe({
-        next: () => {},
         error: (error: unknown) => this.errorMessage.set(getDisplayErrorMessage(error)),
       });
   }
@@ -74,7 +73,6 @@ export class HomePageComponent {
         finalize(() => this.loadingData.set(false)),
       )
       .subscribe({
-        next: () => {},
         error: (error: unknown) => this.errorMessage.set(getDisplayErrorMessage(error)),
       });
   }

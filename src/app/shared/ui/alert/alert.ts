@@ -11,12 +11,12 @@ export type AlertVariant = 'info' | 'success' | 'warning' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AlertComponent {
-  readonly variant = input<AlertVariant>('info');
-  readonly title = input<string>('');
-  readonly message = input<string>('');
-  readonly dismissible = input<boolean>(false);
+  readonly variant = input('info' as AlertVariant);
+  readonly title = input('');
+  readonly message = input('');
+  readonly dismissible = input(false);
 
-  readonly dismissed = output<void>();
+  readonly dismissed = output();
 
   protected dismiss(): void {
     this.dismissed.emit();

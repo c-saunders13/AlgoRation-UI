@@ -19,13 +19,12 @@ describe('ShellComponent', () => {
   it('should render navigation links', () => {
     const fixture = TestBed.createComponent(ShellComponent);
     fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
 
-    const links = Array.from(
-      fixture.nativeElement.querySelectorAll('.shell__nav a'),
-    ) as HTMLAnchorElement[];
+    const links = Array.from(element.querySelectorAll<HTMLAnchorElement>('.shell__nav a'));
 
     expect(links.length).toBe(3);
-    expect(links.map((link) => link.textContent?.trim())).toEqual([
+    expect(links.map((link) => link.textContent.trim())).toEqual([
       'Home',
       'Ingredients',
       'Recipes',

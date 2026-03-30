@@ -9,11 +9,11 @@ import { ChangeDetectionStrategy, Component, HostListener, input, output } from 
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ModalComponent {
-  readonly open = input<boolean>(false);
-  readonly title = input<string>('');
-  readonly closeOnBackdrop = input<boolean>(true);
+  readonly open = input(false);
+  readonly title = input('');
+  readonly closeOnBackdrop = input(true);
 
-  readonly closed = output<void>();
+  readonly closed = output();
 
   @HostListener('document:keydown.escape')
   protected onEsc(): void {
@@ -22,7 +22,7 @@ export class ModalComponent {
     }
   }
 
-  protected onBackdropClick(event: MouseEvent): void {
+  protected onBackdropClick(event: Event): void {
     if (this.closeOnBackdrop() && event.target === event.currentTarget) {
       this.close();
     }

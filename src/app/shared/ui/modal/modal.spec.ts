@@ -19,7 +19,9 @@ describe('ModalComponent', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.modal-backdrop')).not.toBeNull();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.modal-backdrop')).not.toBeNull();
   });
 
   it('should emit closed on close button click', () => {
@@ -28,9 +30,12 @@ describe('ModalComponent', () => {
     fixture.detectChanges();
 
     const emitSpy = spyOn(fixture.componentInstance.closed, 'emit');
-    const closeButton = fixture.nativeElement.querySelector('.modal__close') as HTMLButtonElement;
+    const element = fixture.nativeElement as HTMLElement;
+    const closeButton = element.querySelector<HTMLButtonElement>('.modal__close');
 
-    closeButton.click();
+    expect(closeButton).not.toBeNull();
+
+    closeButton?.click();
 
     expect(emitSpy).toHaveBeenCalled();
   });

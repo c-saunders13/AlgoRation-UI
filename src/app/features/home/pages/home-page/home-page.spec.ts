@@ -9,6 +9,13 @@ import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { RecipeStore } from '../../../../core/stores/recipe.store';
 import { HomePageComponent } from './home-page';
 
+interface HomePageTestApi {
+  refreshData(): void;
+  calculateRations(): void;
+  calculationResult(): { totalPeopleFed: number } | null;
+  errorMessage(): string | null;
+}
+
 describe('HomePageComponent', () => {
   const ingredientStoreMock = {
     ingredients: signal([]),
@@ -65,11 +72,12 @@ describe('HomePageComponent', () => {
   it('should force refresh when refreshData is requested', () => {
     const fixture = TestBed.createComponent(HomePageComponent);
     fixture.detectChanges();
+    const component = fixture.componentInstance as unknown as HomePageTestApi;
 
     ingredientStoreMock.load.calls.reset();
     recipeStoreMock.load.calls.reset();
 
-    (fixture.componentInstance as any).refreshData();
+    component.refreshData();
 
     expect(ingredientStoreMock.load).toHaveBeenCalledWith(true);
     expect(recipeStoreMock.load).toHaveBeenCalledWith(true);
@@ -78,11 +86,12 @@ describe('HomePageComponent', () => {
   it('should calculate rations and store result', () => {
     const fixture = TestBed.createComponent(HomePageComponent);
     fixture.detectChanges();
+    const component = fixture.componentInstance as unknown as HomePageTestApi;
 
-    (fixture.componentInstance as any).calculateRations();
+    component.calculateRations();
 
     expect(calculationServiceMock.calculate).toHaveBeenCalled();
-    expect((fixture.componentInstance as any).calculationResult()?.totalPeopleFed).toBe(3);
+    expect(component.calculationResult()?.totalPeopleFed).toBe(3);
   });
 
   it('should set error message when refresh fails', () => {
@@ -90,7 +99,8 @@ describe('HomePageComponent', () => {
 
     const fixture = TestBed.createComponent(HomePageComponent);
     fixture.detectChanges();
+    const component = fixture.componentInstance as unknown as HomePageTestApi;
 
-    expect((fixture.componentInstance as any).errorMessage()).toContain('Load failed');
+    expect(component.errorMessage()).toContain('Load failed');
   });
 });

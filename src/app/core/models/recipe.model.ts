@@ -13,17 +13,17 @@ export interface Recipe {
 export interface CreateRecipeRequest {
   name: string;
   servings: number;
-  ingredients: Array<{
+  ingredients: {
     ingredientId: string;
     requiredQuantity: number;
-  }>;
+  }[];
 }
 
 export interface UpdateRecipeRequest {
   name: string;
   servings: number;
-  ingredients: Array<{
+  ingredients: {
     ingredientId: string;
     requiredQuantity: number;
-  }>;
+  }[];
 }

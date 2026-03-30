@@ -65,7 +65,7 @@ export class RecipesPageComponent {
     name: this.fb.nonNullable.control('', [
       Validators.required,
       nonWhitespaceValidator(),
-      uniqueNameValidator(this.recipes, this.editingId),
+      uniqueNameValidator(() => this.recipes(), () => this.editingId()),
     ]),
     servings: this.fb.nonNullable.control(1, [Validators.required, Validators.min(1)]),
     requirements: this.createRequirementsArray([{ ingredientId: '', requiredQuantity: 1 }]),
@@ -206,7 +206,7 @@ export class RecipesPageComponent {
   }
 
   protected requirementIngredientErrorMessage(index: number): string | null {
-    const control = this.requirements.at(index)?.controls.ingredientId;
+    const control = this.requirements.at(index).controls.ingredientId;
     if (!this.showControlError(control)) {
       return null;
     }
@@ -219,7 +219,7 @@ export class RecipesPageComponent {
   }
 
   protected requirementQuantityErrorMessage(index: number): string | null {
-    const control = this.requirements.at(index)?.controls.requiredQuantity;
+    const control = this.requirements.at(index).controls.requiredQuantity;
     if (!this.showControlError(control)) {
       return null;
     }
@@ -325,7 +325,7 @@ export class RecipesPageComponent {
   }
 
   private createRequirementsArray(
-    values: Array<{ ingredientId: string; requiredQuantity: number }>,
+    values: { ingredientId: string; requiredQuantity: number }[],
   ): FormArray<RequirementFormGroup> {
     const groups =
       values.length > 0
@@ -343,7 +343,7 @@ export class RecipesPageComponent {
   }
 
   private resetRequirements(
-    values: Array<{ ingredientId: string; requiredQuantity: number }>,
+    values: { ingredientId: string; requiredQuantity: number }[],
   ): void {
     this.form.setControl('requirements', this.createRequirementsArray(values));
   }

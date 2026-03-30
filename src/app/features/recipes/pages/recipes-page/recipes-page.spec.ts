@@ -6,6 +6,42 @@ import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { RecipeStore } from '../../../../core/stores/recipe.store';
 import { RecipesPageComponent } from './recipes-page';
 
+interface RecipesPageTestApi {
+  form: {
+    controls: {
+      name: {
+        setValue(value: string): void;
+        hasError(errorCode: string): boolean;
+      };
+      servings: {
+        setValue(value: number): void;
+      };
+    };
+  };
+  requirements: {
+    at(index: number): {
+      controls: {
+        ingredientId: {
+          setValue(value: string): void;
+          hasError(errorCode: string): boolean;
+        };
+        requiredQuantity: {
+          setValue(value: number): void;
+          hasError(errorCode: string): boolean;
+        };
+      };
+    };
+  };
+  submit(): void;
+  requestDelete(recipe: {
+    id: string;
+    name: string;
+    servings: number;
+    ingredients: never[];
+  }): void;
+  confirmDelete(): void;
+}
+
 describe('RecipesPageComponent', () => {
   const recipeStoreMock = {
     recipes: signal([
@@ -82,7 +118,7 @@ describe('RecipesPageComponent', () => {
     const fixture = TestBed.createComponent(RecipesPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as RecipesPageTestApi;
     component.form.controls.name.setValue('  Stew  ');
     component.form.controls.servings.setValue(2);
     component.requirements.at(0).controls.ingredientId.setValue('ing-1');
@@ -101,7 +137,7 @@ describe('RecipesPageComponent', () => {
     const fixture = TestBed.createComponent(RecipesPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as RecipesPageTestApi;
     component.form.controls.name.setValue('   ');
     component.form.controls.servings.setValue(2);
     component.requirements.at(0).controls.ingredientId.setValue('ing-1');
@@ -117,7 +153,7 @@ describe('RecipesPageComponent', () => {
     const fixture = TestBed.createComponent(RecipesPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as RecipesPageTestApi;
     component.form.controls.name.setValue(' soup ');
     component.form.controls.servings.setValue(2);
     component.requirements.at(0).controls.ingredientId.setValue('ing-1');
@@ -133,7 +169,7 @@ describe('RecipesPageComponent', () => {
     const fixture = TestBed.createComponent(RecipesPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as RecipesPageTestApi;
     component.form.controls.name.setValue('Stew');
     component.form.controls.servings.setValue(2);
     component.requirements.at(0).controls.ingredientId.setValue('');
@@ -149,7 +185,7 @@ describe('RecipesPageComponent', () => {
     const fixture = TestBed.createComponent(RecipesPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as RecipesPageTestApi;
     component.form.controls.name.setValue('Stew');
     component.form.controls.servings.setValue(2);
     component.requirements.at(0).controls.ingredientId.setValue('ing-1');
@@ -165,7 +201,7 @@ describe('RecipesPageComponent', () => {
     const fixture = TestBed.createComponent(RecipesPageComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance as any;
+    const component = fixture.componentInstance as unknown as RecipesPageTestApi;
     component.requestDelete({
       id: 'recipe-1',
       name: 'Stew',

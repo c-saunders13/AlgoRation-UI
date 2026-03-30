@@ -4,7 +4,7 @@ const normalizeName = (value: string): string => value.trim().toLocaleLowerCase(
 
 export function nonWhitespaceValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    const value = control.value;
+    const value: unknown = control.value;
     if (typeof value !== 'string' || value.length === 0) {
       return null;
     }
@@ -18,7 +18,7 @@ export function uniqueNameValidator<T extends { id: string; name: string }>(
   getCurrentId: () => string | null,
 ): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    const value = control.value;
+    const value: unknown = control.value;
     if (typeof value !== 'string' || value.trim().length === 0) {
       return null;
     }

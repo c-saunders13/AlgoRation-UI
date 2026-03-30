@@ -31,11 +31,12 @@ describe('AlertComponent', () => {
     fixture.detectChanges();
 
     const emitSpy = spyOn(fixture.componentInstance.dismissed, 'emit');
-    const dismissButton = fixture.nativeElement.querySelector(
-      '.alert__dismiss',
-    ) as HTMLButtonElement;
+    const element = fixture.nativeElement as HTMLElement;
+    const dismissButton = element.querySelector<HTMLButtonElement>('.alert__dismiss');
 
-    dismissButton.click();
+    expect(dismissButton).not.toBeNull();
+
+    dismissButton?.click();
 
     expect(emitSpy).toHaveBeenCalled();
   });

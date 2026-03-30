@@ -13,6 +13,12 @@ import { RecipeStore } from './core/stores/recipe.store';
 describe('App user flows', () => {
   let fixture: ComponentFixture<App>;
 
+  interface RecipePayload {
+    name: string;
+    servings: number;
+    ingredients: { ingredientId: string; requiredQuantity: number }[];
+  }
+
   const initialIngredients = [
     { id: 'ing-1', name: 'Rice', availableQuantity: 10 },
     { id: 'ing-2', name: 'Beans', availableQuantity: 4 },
@@ -55,7 +61,7 @@ describe('App user flows', () => {
         .createSpy('create')
         .and.callFake((payload: { name: string; availableQuantity: number }) => {
           const created = {
-            id: `ing-${ingredientStoreMock.ingredients().length + 1}`,
+            id: `ing-${String(ingredientStoreMock.ingredients().length + 1)}`,
             ...payload,
           };
           ingredientStoreMock.ingredients.update((list) => [...list, created]);
@@ -84,29 +90,16 @@ describe('App user flows', () => {
       load: jasmine.createSpy('load').and.callFake(() => of(recipeStoreMock.recipes())),
       create: jasmine
         .createSpy('create')
-        .and.callFake(
-          (payload: {
-            name: string;
-            servings: number;
-            ingredients: Array<{ ingredientId: string; requiredQuantity: number }>;
-          }) => {
+        .and.callFake((payload: RecipePayload) => {
             const created = {
-              id: `recipe-${recipeStoreMock.recipes().length + 1}`,
+              id: `recipe-${String(recipeStoreMock.recipes().length + 1)}`,
               ...payload,
             };
             recipeStoreMock.recipes.update((list) => [...list, created]);
             return of(created);
-          },
-        ),
+          }),
       update: jasmine.createSpy('update').and.callFake(
-        (
-          id: string,
-          payload: {
-            name: string;
-            servings: number;
-            ingredients: Array<{ ingredientId: string; requiredQuantity: number }>;
-          },
-        ) => {
+        (id: string, payload: RecipePayload) => {
           const updated = { id, ...payload };
           recipeStoreMock.recipes.update((list) =>
             list.map((recipe) => (recipe.id === id ? updated : recipe)),
@@ -160,12 +153,12 @@ describe('App user flows', () => {
   it('should let a user edit ingredients, edit recipes, and calculate rations across routes', async () => {
     await navigate('/ingredients');
 
-    click(query<HTMLElement>('tbody tr .ghost-button'));
+    click(queryButton('tbody tr .ghost-button'));
     fixture.detectChanges();
     await fixture.whenStable();
 
-    setInputValue(query<HTMLInputElement>('input[formControlName="name"]'), 'Brown Rice');
-    setInputValue(query<HTMLInputElement>('input[formControlName="availableQuantity"]'), '12');
+    setInputValue(queryInput('input[formControlName="name"]'), 'Brown Rice');
+    setInputValue(queryInput('input[formControlName="availableQuantity"]'), '12');
     click(buttonByText('Update ingredient'));
     fixture.detectChanges();
     await fixture.whenStable();
@@ -181,14 +174,14 @@ describe('App user flows', () => {
 
     expect(textContent()).toContain('Brown Rice - 1');
 
-    click(query<HTMLElement>('.recipe-list article .ghost-button'));
+    click(queryButton('.recipe-list article .ghost-button'));
     fixture.detectChanges();
     await fixture.whenStable();
 
-    setInputValue(query<HTMLInputElement>('input[formControlName="name"]'), 'Hearty Chili');
-    setInputValue(query<HTMLInputElement>('input[formControlName="servings"]'), '5');
-    setSelectValue(query<HTMLSelectElement>('select[formControlName="ingredientId"]'), 'ing-1');
-    setInputValue(query<HTMLInputElement>('input[formControlName="requiredQuantity"]'), '2');
+    setInputValue(queryInput('input[formControlName="name"]'), 'Hearty Chili');
+    setInputValue(queryInput('input[formControlName="servings"]'), '5');
+    setSelectValue(querySelect('select[formControlName="ingredientId"]'), 'ing-1');
+    setInputValue(queryInput('input[formControlName="requiredQuantity"]'), '2');
     click(buttonByText('Update recipe'));
     fixture.detectChanges();
     await fixture.whenStable();
@@ -234,12 +227,12 @@ describe('App user flows', () => {
 
     await navigate('/ingredients');
 
-    click(query<HTMLElement>('tbody tr .ghost-button'));
+    click(queryButton('tbody tr .ghost-button'));
     fixture.detectChanges();
     await fixture.whenStable();
 
-    setInputValue(query<HTMLInputElement>('input[formControlName="name"]'), 'Rice Deluxe');
-    setInputValue(query<HTMLInputElement>('input[formControlName="availableQuantity"]'), '14');
+    setInputValue(queryInput('input[formControlName="name"]'), 'Rice Deluxe');
+    setInputValue(queryInput('input[formControlName="availableQuantity"]'), '14');
     click(buttonByText('Update ingredient'));
     fixture.detectChanges();
     await fixture.whenStable();
@@ -247,7 +240,7 @@ describe('App user flows', () => {
     expect(textContent()).toContain('Unable to save ingredient');
     expect(textContent()).toContain('Validation failed');
 
-    click(query<HTMLElement>('tbody tr .ghost-button'));
+    click(queryButton('tbody tr .ghost-button'));
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -270,8 +263,12 @@ describe('App user flows', () => {
     fixture.detectChanges();
   }
 
-  function query<T extends Element>(selector: string): T {
-    const element = fixture.nativeElement.querySelector(selector) as T | null;
+  function rootElement(): HTMLElement {
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  function query(selector: string): Element {
+    const element = rootElement().querySelector(selector);
 
     if (!element) {
       throw new Error(`Missing element for selector: ${selector}`);
@@ -280,10 +277,38 @@ describe('App user flows', () => {
     return element;
   }
 
+  function queryButton(selector: string): HTMLButtonElement {
+    const element = query(selector);
+
+    if (!(element instanceof HTMLButtonElement)) {
+      throw new Error(`Expected HTMLButtonElement for selector: ${selector}`);
+    }
+
+    return element;
+  }
+
+  function queryInput(selector: string): HTMLInputElement {
+    const element = query(selector);
+
+    if (!(element instanceof HTMLInputElement)) {
+      throw new Error(`Expected HTMLInputElement for selector: ${selector}`);
+    }
+
+    return element;
+  }
+
+  function querySelect(selector: string): HTMLSelectElement {
+    const element = query(selector);
+
+    if (!(element instanceof HTMLSelectElement)) {
+      throw new Error(`Expected HTMLSelectElement for selector: ${selector}`);
+    }
+
+    return element;
+  }
+
   function buttonByText(label: string): HTMLButtonElement {
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll('button'),
-    ) as HTMLButtonElement[];
+    const buttons = Array.from(rootElement().querySelectorAll<HTMLButtonElement>('button'));
     const match = buttons.find((button) => normalize(button.textContent) === label);
 
     if (!match) {
@@ -308,7 +333,7 @@ describe('App user flows', () => {
   }
 
   function textContent(): string {
-    return normalize(fixture.nativeElement.textContent);
+    return normalize(rootElement().textContent);
   }
 
   function normalize(value: string | null | undefined): string {

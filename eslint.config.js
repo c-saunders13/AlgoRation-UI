@@ -24,6 +24,25 @@ module.exports = defineConfig(
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      '@typescript-eslint/no-confusing-void-expression': [
+        'error',
+        {
+          ignoreArrowShorthand: true,
+        },
+      ],
+      '@typescript-eslint/unbound-method': [
+        'error',
+        {
+          ignoreStatic: true,
+        },
+      ],
+      '@typescript-eslint/no-extraneous-class': [
+        'error',
+        {
+          allowWithDecorator: true,
+        },
+      ],
+      '@typescript-eslint/no-invalid-void-type': 'off',
       '@angular-eslint/component-selector': [
         'error',
         {
@@ -44,10 +63,7 @@ module.exports = defineConfig(
   },
   {
     files: ['**/*.html'],
-    extends: [
-      ...angular.configs.templateRecommended,
-      ...angular.configs.templateAccessibility,
-    ],
+    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
     rules: {},
   },
 );

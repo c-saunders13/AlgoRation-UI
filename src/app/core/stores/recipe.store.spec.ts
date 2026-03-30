@@ -60,7 +60,7 @@ describe('RecipeStore', () => {
     });
 
     expect(store.loading()).toBeTrue();
-    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(service.list.calls.count()).toBe(1);
 
     initialLoad$.next(initialRecipes);
     initialLoad$.complete();
@@ -73,14 +73,14 @@ describe('RecipeStore', () => {
       cachedLoadResult = recipes;
     });
 
-    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(service.list.calls.count()).toBe(1);
     expect(cachedLoadResult).toEqual(initialRecipes);
 
     store.load(true).subscribe((recipes) => {
       forcedLoadResult = recipes;
     });
 
-    expect(service.list).toHaveBeenCalledTimes(2);
+    expect(service.list.calls.count()).toBe(2);
     expect(forcedLoadResult).toEqual(refreshedRecipes);
     expect(store.recipes()).toEqual(refreshedRecipes);
   });
@@ -109,7 +109,7 @@ describe('RecipeStore', () => {
       retryResult = recipes;
     });
 
-    expect(service.list).toHaveBeenCalledTimes(2);
+    expect(service.list.calls.count()).toBe(2);
     expect(retryResult).toEqual(initialRecipes);
     expect(store.recipes()).toEqual(initialRecipes);
   });
@@ -123,7 +123,7 @@ describe('RecipeStore', () => {
       ingredients: [{ ingredientId: 'ing-1', requiredQuantity: 2 }],
     };
     let createdResult: (typeof initialRecipes)[number] | undefined;
-    let cachedResult: Array<(typeof initialRecipes)[number]> | undefined;
+    let cachedResult: ((typeof initialRecipes)[number])[] | undefined;
 
     service.list.and.returnValue(of(initialRecipes));
     service.create.and.returnValue(create$.asObservable());
@@ -152,7 +152,7 @@ describe('RecipeStore', () => {
       cachedResult = recipes;
     });
 
-    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(service.list.calls.count()).toBe(1);
     expect(cachedResult).toEqual([...initialRecipes, createdRecipe]);
   });
 
