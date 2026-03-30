@@ -32,10 +32,18 @@ export const routes: Routes = [
             (module) => module.RecipesPageComponent,
           ),
       },
+      {
+        path: 'not-found',
+        title: 'Not Found | AlgoRation',
+        loadComponent: () =>
+          import('./features/not-found/pages/not-found-page/not-found-page').then(
+            (module) => module.NotFoundPageComponent,
+          ),
+      },
     ],
   },
   {
     path: '**',
-    redirectTo: '',
+    redirectTo: 'not-found',
   },
 ];

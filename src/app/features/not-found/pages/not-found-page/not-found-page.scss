@@ -1,0 +1,31 @@
+:host {
+  display: block;
+}
+
+.not-found {
+  border: 1px solid var(--border-soft);
+  border-radius: 1.2rem;
+  padding: 2rem 1.5rem;
+  background: var(--surface-base);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+.not-found__code {
+  margin: 0;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.not-found h1 {
+  margin: 0.5rem 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.not-found__message {
+  margin: 0 0 1.25rem;
+  color: var(--text-muted);
+}
