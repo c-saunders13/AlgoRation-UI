@@ -21,6 +21,10 @@ export const DEFAULT_API_CONFIG: ApiConfig = {
   },
 };
 
+export function buildUrl(path: string, config: ApiConfig = DEFAULT_API_CONFIG): string {
+  return `${config.baseUrl}${path}`;
+}
+
 export const API_CONFIG = new InjectionToken<ApiConfig>('API_CONFIG', {
   factory: () => DEFAULT_API_CONFIG,
 });

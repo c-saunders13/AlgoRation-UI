@@ -7,13 +7,13 @@ import {
   CreateIngredientRequest,
   UpdateIngredientRequest,
 } from '../models/ingredient.model';
-import { API_CONFIG } from './api-config';
+import { API_CONFIG, buildUrl } from './api-config';
 
 @Injectable({ providedIn: 'root' })
 export class IngredientService {
   private readonly http = inject(HttpClient);
   private readonly config = inject(API_CONFIG);
-  private readonly endpoint = this.buildUrl(this.config.endpoints.ingredients);
+  private readonly endpoint = buildUrl(this.config.endpoints.ingredients, this.config);
 
   list(): Observable<Ingredient[]> {
     return this.http.get<Ingredient[]>(this.endpoint);
@@ -29,9 +29,5 @@ export class IngredientService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.endpoint}/${id}`);
-  }
-
-  private buildUrl(path: string): string {
-    return `${this.config.baseUrl}${path}`;
   }
 }
