@@ -11,7 +11,6 @@ import {
 } from '@angular/forms';
 import { finalize } from 'rxjs';
 
-import { Ingredient } from '../../../../core/models/ingredient.model';
 import {
   Recipe,
   CreateRecipeRequest,

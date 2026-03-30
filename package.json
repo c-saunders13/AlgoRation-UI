@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "prestart": "npm run test:ci",
+    "prestart": "npm run lint && npm run test:ci",
     "start": "ng serve",
-    "prebuild": "npm run test:ci",
+    "prebuild": "npm run lint && npm run test:ci",
     "build": "ng build",
+    "lint": "eslint . --ext .ts,.html",
+    "lint:fix": "npm run lint -- --fix",
     "pwa:build": "ng build --configuration production",
     "pwa:serve": "http-server dist/algoration-ui/browser -p 4200 -c-1",
     "pwa": "npm run pwa:build && npm run pwa:serve",
@@ -43,7 +45,10 @@
     "@angular/build": "^20.3.21",
     "@angular/cli": "^20.3.21",
     "@angular/compiler-cli": "^20.3.0",
+    "@eslint/js": "^10.0.1",
     "@types/jasmine": "~5.1.0",
+    "angular-eslint": "^20.7.0",
+    "eslint": "^10.1.0",
     "http-server": "^14.1.1",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",
@@ -51,6 +56,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.57.2"
   }
 }
