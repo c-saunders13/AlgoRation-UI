@@ -38,11 +38,11 @@
               </div>
             </header>
 
-            <strong>Servings: {{ recipe.servings }}</strong> 
+            <strong>Servings: {{ recipe.servings | quantityDisplay }}</strong> 
             <ul>
               @for (requirement of recipe.ingredients; track $index) {
                 <li>
-                  {{ ingredientLabel(requirement.ingredientId) }} - {{ requirement.requiredQuantity }}
+                  {{ ingredientLabel(requirement.ingredientId) }} - {{ requirement.requiredQuantity | quantityDisplay }}
                 </li>
               }
             </ul>
@@ -62,6 +62,7 @@
     <label>
       Name
       <input
+        appAutoFocus
         type="text"
         formControlName="name"
         placeholder="e.g. Tomato Pasta"

@@ -123,7 +123,7 @@ describe('RecipeStore', () => {
       ingredients: [{ ingredientId: 'ing-1', requiredQuantity: 2 }],
     };
     let createdResult: (typeof initialRecipes)[number] | undefined;
-    let cachedResult: ((typeof initialRecipes)[number])[] | undefined;
+    let cachedResult: (typeof initialRecipes)[number][] | undefined;
 
     service.list.and.returnValue(of(initialRecipes));
     service.create.and.returnValue(create$.asObservable());

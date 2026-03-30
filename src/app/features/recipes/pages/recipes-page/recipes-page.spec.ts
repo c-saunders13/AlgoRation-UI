@@ -33,12 +33,7 @@ interface RecipesPageTestApi {
     };
   };
   submit(): void;
-  requestDelete(recipe: {
-    id: string;
-    name: string;
-    servings: number;
-    ingredients: never[];
-  }): void;
+  requestDelete(recipe: { id: string; name: string; servings: number; ingredients: never[] }): void;
   confirmDelete(): void;
 }
 

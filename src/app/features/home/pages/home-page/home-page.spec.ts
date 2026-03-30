@@ -11,6 +11,7 @@ import { HomePageComponent } from './home-page';
 
 interface HomePageTestApi {
   refreshData(): void;
+  restoreData(): void;
   calculateRations(): void;
   calculationResult(): { totalPeopleFed: number } | null;
   errorMessage(): string | null;
@@ -69,7 +70,7 @@ describe('HomePageComponent', () => {
     expect(recipeStoreMock.load).toHaveBeenCalledWith(false);
   });
 
-  it('should force refresh when refreshData is requested', () => {
+  it('should force refresh when refreshData is requested', async () => {
     const fixture = TestBed.createComponent(HomePageComponent);
     fixture.detectChanges();
     const component = fixture.componentInstance as unknown as HomePageTestApi;
@@ -78,20 +79,41 @@ describe('HomePageComponent', () => {
     recipeStoreMock.load.calls.reset();
 
     component.refreshData();
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(ingredientStoreMock.load).toHaveBeenCalledWith(true);
     expect(recipeStoreMock.load).toHaveBeenCalledWith(true);
   });
 
-  it('should calculate rations and store result', () => {
+  it('should calculate rations and store result', async () => {
     const fixture = TestBed.createComponent(HomePageComponent);
     fixture.detectChanges();
     const component = fixture.componentInstance as unknown as HomePageTestApi;
 
     component.calculateRations();
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(calculationServiceMock.calculate).toHaveBeenCalled();
     expect(component.calculationResult()?.totalPeopleFed).toBe(3);
+  });
+
+  it('should restore data by resetting recipes and force reloading stores', async () => {
+    const fixture = TestBed.createComponent(HomePageComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance as unknown as HomePageTestApi;
+
+    ingredientStoreMock.load.calls.reset();
+    recipeStoreMock.load.calls.reset();
+
+    component.restoreData();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(recipeServiceMock.reset).toHaveBeenCalled();
+    expect(ingredientStoreMock.load).toHaveBeenCalledWith(true);
+    expect(recipeStoreMock.load).toHaveBeenCalledWith(true);
   });
 
   it('should set error message when refresh fails', () => {

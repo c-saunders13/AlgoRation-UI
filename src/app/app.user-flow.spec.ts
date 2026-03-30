@@ -88,25 +88,21 @@ describe('App user flows', () => {
       recipes: signal(structuredClone(initialRecipes)),
       loading: signal(false),
       load: jasmine.createSpy('load').and.callFake(() => of(recipeStoreMock.recipes())),
-      create: jasmine
-        .createSpy('create')
-        .and.callFake((payload: RecipePayload) => {
-            const created = {
-              id: `recipe-${String(recipeStoreMock.recipes().length + 1)}`,
-              ...payload,
-            };
-            recipeStoreMock.recipes.update((list) => [...list, created]);
-            return of(created);
-          }),
-      update: jasmine.createSpy('update').and.callFake(
-        (id: string, payload: RecipePayload) => {
-          const updated = { id, ...payload };
-          recipeStoreMock.recipes.update((list) =>
-            list.map((recipe) => (recipe.id === id ? updated : recipe)),
-          );
-          return of(updated);
-        },
-      ),
+      create: jasmine.createSpy('create').and.callFake((payload: RecipePayload) => {
+        const created = {
+          id: `recipe-${String(recipeStoreMock.recipes().length + 1)}`,
+          ...payload,
+        };
+        recipeStoreMock.recipes.update((list) => [...list, created]);
+        return of(created);
+      }),
+      update: jasmine.createSpy('update').and.callFake((id: string, payload: RecipePayload) => {
+        const updated = { id, ...payload };
+        recipeStoreMock.recipes.update((list) =>
+          list.map((recipe) => (recipe.id === id ? updated : recipe)),
+        );
+        return of(updated);
+      }),
       delete: jasmine.createSpy('delete').and.callFake((id: string) => {
         recipeStoreMock.recipes.update((list) => list.filter((recipe) => recipe.id !== id));
         return of(void 0);

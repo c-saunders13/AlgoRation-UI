@@ -22,13 +22,13 @@
     <p>Current counts</p>
     <ul>
       <li>
-        <strong>{{ ingredients().length }}</strong> ingredients tracked
+        <strong>{{ ingredients().length | quantityDisplay }}</strong> ingredients tracked
       </li>
       <li>
-        <strong>{{ recipes().length }}</strong> recipes available
+        <strong>{{ recipes().length | quantityDisplay }}</strong> recipes available
       </li>
       <li>
-        <strong>{{ calculationResult()?.totalPeopleFed ?? 0 }}</strong>
+        <strong>{{ calculationResult()?.totalPeopleFed ?? 0 | quantityDisplay }}</strong>
         people fed from last calculation
       </li>
     </ul>
@@ -47,7 +47,7 @@
     } @else {
       <ul>
         @for (ingredient of ingredients(); track ingredient.id) {
-          <li>{{ ingredient.name }} - {{ ingredient.availableQuantity }}</li>
+          <li>{{ ingredient.name }} - {{ ingredient.availableQuantity | quantityDisplay }}</li>
         }
       </ul>
     }
@@ -71,7 +71,7 @@
     @if (!calculationResult()) {
       <p>Run a calculation to see ration details.</p>
     } @else {
-      <p class="result-total">People fed: {{ calculationResult()!.totalPeopleFed }}</p>
+      <p class="result-total">People fed: {{ calculationResult()!.totalPeopleFed | quantityDisplay }}</p>
 
       <h3>Meals produced</h3>
       @if (calculationResult()!.breakdown.length === 0) {
@@ -82,7 +82,7 @@
             <li>
               {{ meal.recipeName }}
               @if (meal.servingsMade) {
-                - {{ meal.servingsMade }} servings
+                - {{ meal.servingsMade | quantityDisplay }} servings
               }
             </li>
           }
@@ -95,7 +95,7 @@
       } @else {
         <ul>
           @for (ingredient of leftoverIngredients(); track ingredient.id) {
-            <li>{{ ingredient.name }} - {{ ingredient.availableQuantity }}</li>
+            <li>{{ ingredient.name }} - {{ ingredient.availableQuantity | quantityDisplay }}</li>
           }
         </ul>
       }

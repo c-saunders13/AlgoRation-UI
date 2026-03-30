@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormArray,
@@ -9,8 +10,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 
+import { Ingredient } from '../../../../core/models/ingredient.model';
 import {
   Recipe,
   CreateRecipeRequest,
@@ -19,7 +21,9 @@ import {
 import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { RecipeStore } from '../../../../core/stores/recipe.store';
 import { AlertComponent, AlertVariant } from '../../../../shared/ui/alert/alert';
+import { AutoFocusDirective } from '../../../../shared/ui/directives/auto-focus.directive';
 import { ModalComponent } from '../../../../shared/ui/modal/modal';
+import { QuantityDisplayPipe } from '../../../../shared/ui/pipes/quantity-display.pipe';
 import { getDisplayErrorMessage } from '../../../../shared/utils/error-message';
 import {
   minFormArrayItems,
@@ -41,7 +45,14 @@ type RequirementFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-recipes-page',
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent, AlertComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ModalComponent,
+    AlertComponent,
+    AutoFocusDirective,
+    QuantityDisplayPipe,
+  ],
   templateUrl: './recipes-page.html',
   styleUrl: './recipes-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,25 +71,37 @@ export class RecipesPageComponent {
   protected readonly pendingDelete = signal<Recipe | null>(null);
   protected readonly alert = signal<PageAlert | null>(null);
   protected readonly editingId = signal<string | null>(null);
+  private readonly _recipesLoad = toSignal(
+    this.recipeStore.load().pipe(
+      catchError((error: unknown) => {
+        this.showError('Unable to load recipes', error);
+        return of<Recipe[]>([]);
+      }),
+    ),
+    { initialValue: [] },
+  );
+  private readonly _ingredientsLoad = toSignal(
+    this.ingredientStore.load().pipe(
+      catchError((error: unknown) => {
+        this.showError('Unable to load ingredients', error);
+        return of<Ingredient[]>([]);
+      }),
+    ),
+    { initialValue: [] },
+  );
 
   protected readonly form = this.fb.group({
     name: this.fb.nonNullable.control('', [
       Validators.required,
       nonWhitespaceValidator(),
-      uniqueNameValidator(() => this.recipes(), () => this.editingId()),
+      uniqueNameValidator(
+        () => this.recipes(),
+        () => this.editingId(),
+      ),
     ]),
     servings: this.fb.nonNullable.control(1, [Validators.required, Validators.min(1)]),
     requirements: this.createRequirementsArray([{ ingredientId: '', requiredQuantity: 1 }]),
   });
-
-  constructor() {
-    this.recipeStore.load().subscribe({
-      error: (error: unknown) => this.showError('Unable to load recipes', error),
-    });
-    this.ingredientStore.load().subscribe({
-      error: (error: unknown) => this.showError('Unable to load ingredients', error),
-    });
-  }
 
   protected get requirements(): FormArray<RequirementFormGroup> {
     return this.form.controls.requirements;
@@ -342,9 +365,7 @@ export class RecipesPageComponent {
     return this.requirementKeyCounter;
   }
 
-  private resetRequirements(
-    values: { ingredientId: string; requiredQuantity: number }[],
-  ): void {
+  private resetRequirements(values: { ingredientId: string; requiredQuantity: number }[]): void {
     this.form.setControl('requirements', this.createRequirementsArray(values));
   }
 

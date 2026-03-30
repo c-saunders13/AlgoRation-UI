@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 
 import {
   Ingredient,
@@ -10,7 +11,9 @@ import {
 } from '../../../../core/models/ingredient.model';
 import { IngredientStore } from '../../../../core/stores/ingredient.store';
 import { AlertComponent, AlertVariant } from '../../../../shared/ui/alert/alert';
+import { AutoFocusDirective } from '../../../../shared/ui/directives/auto-focus.directive';
 import { ModalComponent } from '../../../../shared/ui/modal/modal';
+import { QuantityDisplayPipe } from '../../../../shared/ui/pipes/quantity-display.pipe';
 import { getDisplayErrorMessage } from '../../../../shared/utils/error-message';
 import {
   nonWhitespaceValidator,
@@ -25,7 +28,14 @@ interface PageAlert {
 
 @Component({
   selector: 'app-ingredients-page',
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent, AlertComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ModalComponent,
+    AlertComponent,
+    AutoFocusDirective,
+    QuantityDisplayPipe,
+  ],
   templateUrl: './ingredients-page.html',
   styleUrl: './ingredients-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +51,15 @@ export class IngredientsPageComponent {
   protected readonly pendingDelete = signal<Ingredient | null>(null);
   protected readonly alert = signal<PageAlert | null>(null);
   protected readonly editingId = signal<string | null>(null);
+  private readonly _initialLoad = toSignal(
+    this.ingredientStore.load().pipe(
+      catchError((error: unknown) => {
+        this.showError('Unable to load ingredients', error);
+        return of<Ingredient[]>([]);
+      }),
+    ),
+    { initialValue: [] },
+  );
 
   protected readonly form = this.fb.nonNullable.group({
     name: [
@@ -48,17 +67,14 @@ export class IngredientsPageComponent {
       [
         Validators.required,
         nonWhitespaceValidator(),
-        uniqueNameValidator(() => this.ingredients(), () => this.editingId()),
+        uniqueNameValidator(
+          () => this.ingredients(),
+          () => this.editingId(),
+        ),
       ],
     ],
     availableQuantity: [0, [Validators.required, Validators.min(0)]],
   });
-
-  constructor() {
-    this.ingredientStore.load().subscribe({
-      error: (error: unknown) => this.showError('Unable to load ingredients', error),
-    });
-  }
 
   protected openCreateModal(): void {
     this.formModalOpen.set(true);

@@ -40,7 +40,7 @@
             @for (ingredient of ingredients(); track trackIngredient($index, ingredient)) {
               <tr>
                 <td>{{ ingredient.name }}</td>
-                <td>{{ ingredient.availableQuantity }}</td>
+                <td>{{ ingredient.availableQuantity | quantityDisplay }}</td>
                 <td class="row-actions">
                   <button type="button" class="ghost-button" (click)="openEditModal(ingredient)">
                     Edit
@@ -67,6 +67,7 @@
     <label>
       Name
       <input
+        appAutoFocus
         type="text"
         formControlName="name"
         placeholder="e.g. Tomato"

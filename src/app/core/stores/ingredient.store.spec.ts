@@ -100,7 +100,7 @@ describe('IngredientStore', () => {
     const create$ = new Subject<(typeof initialIngredients)[number]>();
     const createdIngredient = { id: 'ing-3', name: 'Tomato', availableQuantity: 4 };
     let createdResult: (typeof initialIngredients)[number] | undefined;
-    let cachedResult: ((typeof initialIngredients)[number])[] | undefined;
+    let cachedResult: (typeof initialIngredients)[number][] | undefined;
 
     service.list.and.returnValue(of(initialIngredients));
     service.create.and.returnValue(create$.asObservable());
